@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library — Документация</title>
+<style>
+  :root{
+    --bg:#101212;
+    --inline:#151818;
+    --element:#1e2222;
+    --accent:#ffffff;
+    --border:#1e2222;
+    --border2:#383e3e;
+    --text:#e8e8e8;
+    --text-dim:#646464;
+    --text-mid:#a0a0a0;
+    --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius:7px;
+    --radius-sm:4px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:14px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+  code, pre, .mono{font-family:var(--mono);}
+
+  /* ===== Top bar mimicking the lib's title block ===== */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; gap:14px;
+    padding:10px 20px;
+    background:var(--inline);
+    border-bottom:1px solid var(--border2);
+  }
+  .topbar .logo-sq{
+    width:32px;height:32px;border-radius:7px;
+    background:#cfcfcf;
+    border:1px solid var(--border2);
+    display:flex;align-items:center;justify-content:center;
+    color:#000;font-weight:700;font-size:16px;
+    flex-shrink:0;
+  }
+  .topbar .name{font-weight:600;font-size:14px;}
+  .topbar .sub{font-size:12px;color:var(--text-dim);}
+  .topbar .right{margin-left:auto;display:flex;align-items:center;gap:18px;font-size:12px;color:var(--text-dim);}
+  .topbar .dot{width:6px;height:6px;border-radius:50%;background:#5ee685;display:inline-block;margin-right:6px;box-shadow:0 0 6px #5ee685;}
+  .topbar .search{
+    background:var(--element); border:1px solid var(--border2); border-radius:var(--radius-sm);
+    padding:6px 10px; color:var(--text-mid); font-size:12px; width:200px;
+  }
+  .topbar .search:focus{outline:none;border-color:var(--accent);color:var(--text);}
+
+  /* ===== Layout: sidebar (Pages) + content (Columns) ===== */
+  .shell{display:flex; min-height:calc(100vh - 53px);}
+  .sidebar{
+    width:240px; flex-shrink:0;
+    padding:18px 10px;
+    border-right:1px solid var(--border2);
+    position:sticky; top:53px; align-self:flex-start;
+    height:calc(100vh - 53px); overflow-y:auto;
+  }
+  .cat{
+    font-size:11px; color:var(--text-dim); text-transform:uppercase;
+    letter-spacing:.04em; padding:14px 10px 6px;
+  }
+  .cat:first-child{padding-top:2px;}
+  .navitem{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 10px; border-radius:var(--radius);
+    color:var(--text-dim); font-size:13.5px; cursor:pointer;
+    border:1px solid transparent;
+    transition:background .12s ease, color .12s ease;
+  }
+  .navitem:hover{background:var(--inline); color:var(--text-mid);}
+  .navitem.active{
+    background:var(--inline);
+    color:#d8d8d8;
+    border-color:var(--border2);
+  }
+  .navitem .ic{
+    width:14px;height:14px;border-radius:3px;background:var(--border2);
+    flex-shrink:0;
+  }
+  .navitem.active .ic{background:var(--accent);}
+  .navsub{padding-left:22px;}
+  .navsub .navitem{font-size:12.5px;}
+
+  .content{flex:1; min-width:0; padding:34px 40px 120px; max-width:880px;}
+
+  /* hero */
+  .hero{margin-bottom:46px;}
+  .hero .eyebrow{
+    font-size:12px; color:var(--text-dim); font-family:var(--mono);
+    margin-bottom:10px; letter-spacing:.02em;
+  }
+  .hero h1{
+    font-size:34px; margin:0 0 12px; font-weight:700; letter-spacing:-0.01em;
+  }
+  .hero p{color:var(--text-mid); font-size:15px; max-width:560px; margin:0 0 22px;}
+  .hero-actions{display:flex; gap:10px;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--element); border:1px solid var(--border2);
+    color:var(--text); padding:9px 16px; border-radius:var(--radius-sm);
+    font-size:13px; cursor:pointer; transition:background .15s ease;
+  }
+  .btn:hover{background:#262b2b;}
+  .btn.primary{background:var(--accent); color:#000; border-color:var(--accent); font-weight:600;}
+  .btn.primary:hover{background:#e2e2e2;}
+
+  /* section card, mirrors the Section element from the lib */
+  .section{
+    background:var(--inline);
+    border:1px solid var(--border2);
+    border-radius:var(--radius);
+    padding:20px 22px 24px;
+    margin-bottom:18px;
+    scroll-margin-top:70px;
+  }
+  .section-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .section-head .ic{width:16px;height:16px;border-radius:3px;background:var(--border2);}
+  .section-head h2{font-size:13px; font-weight:600; color:var(--text-mid); text-transform:uppercase; letter-spacing:.03em; margin:0;}
+
+  h3.member{
+    font-family:var(--mono); font-size:14.5px; color:var(--text);
+    margin:26px 0 6px; padding-top:18px; border-top:1px solid var(--border);
+    display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+  }
+  .section > h3.member:first-of-type{border-top:none; padding-top:0; margin-top:6px;}
+  h3.member .badge{
+    font-family:var(--sans); font-size:10.5px; padding:2px 7px; border-radius:20px;
+    background:var(--element); color:var(--text-dim); border:1px solid var(--border2);
+    text-transform:uppercase; letter-spacing:.03em;
+  }
+  h3.member .badge.method{color:#9fd3ff;border-color:#26405a;background:#16222e;}
+  h3.member .badge.sub{color:#ffd699;border-color:#4a3a1a;background:#241d10;}
+
+  p.desc{color:var(--text-mid); margin:6px 0 14px; font-size:13.5px;}
+
+  table.params{width:100%; border-collapse:collapse; margin:10px 0 18px; font-size:13px;}
+  table.params th{
+    text-align:left; color:var(--text-dim); font-weight:600; font-size:11px;
+    text-transform:uppercase; letter-spacing:.03em;
+    padding:6px 10px; border-bottom:1px solid var(--border2);
+  }
+  table.params td{padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top;}
+  table.params td.pname{font-family:var(--mono); color:#cfeaff; white-space:nowrap;}
+  table.params td.ptype{font-family:var(--mono); color:var(--text-dim); white-space:nowrap;}
+  table.params tr:last-child td{border-bottom:none;}
+
+  pre.code{
+    background:#0b0d0d; border:1px solid var(--border2); border-radius:var(--radius-sm);
+    padding:14px 16px; overflow-x:auto; font-size:12.8px; line-height:1.65; margin:10px 0 4px;
+    position:relative;
+  }
+  pre.code .copy{
+    position:absolute; top:8px; right:8px; font-size:11px; color:var(--text-dim);
+    background:var(--element); border:1px solid var(--border2); border-radius:4px;
+    padding:3px 8px; cursor:pointer; font-family:var(--sans);
+  }
+  pre.code .copy:hover{color:var(--text);}
+  .tok-kw{color:#ff9fd0;} .tok-str{color:#b9e89a;} .tok-com{color:#5e6868;}
+  .tok-fn{color:#9fd3ff;} .tok-num{color:#ffcf8a;} .tok-prop{color:#e8c9ff;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:14px 0;}
+  @media (max-width:760px){.grid2{grid-template-columns:1fr;}}
+  .mini-card{
+    background:var(--element); border:1px solid var(--border2); border-radius:var(--radius-sm);
+    padding:14px 16px;
+  }
+  .mini-card h4{margin:0 0 6px; font-size:12.5px; color:var(--text);}
+  .mini-card p{margin:0; font-size:12.5px; color:var(--text-dim);}
+
+  .callout{
+    border-left:3px solid var(--border2); background:var(--element);
+    padding:12px 16px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; margin:14px 0;
+    font-size:13px; color:var(--text-mid);
+  }
+  .callout.warn{border-left-color:#caa24a;}
+  .callout.warn b{color:#e2c170;}
+  .callout b{color:var(--text);}
+
+  .swatches{display:flex; gap:10px; flex-wrap:wrap; margin:12px 0;}
+  .swatch{
+    display:flex; flex-direction:column; gap:6px; align-items:flex-start;
+  }
+  .swatch .chip{width:64px; height:40px; border-radius:6px; border:1px solid var(--border2);}
+  .swatch span{font-size:11px; color:var(--text-dim); font-family:var(--mono);}
+
+  footer{
+    border-top:1px solid var(--border2); margin-top:60px; padding-top:24px;
+    color:var(--text-dim); font-size:12px; display:flex; justify-content:space-between;
+  }
+
+  .anchor-link{opacity:0; margin-left:6px; font-size:12px; color:var(--text-dim);}
+  h3.member:hover .anchor-link{opacity:1;}
+
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border2); border-radius:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  @media (max-width: 900px){
+    .sidebar{position:fixed; left:-260px; top:53px; background:var(--bg); z-index:40; transition:left .2s ease; box-shadow:0 0 0 9999px rgba(0,0,0,0);}
+    .sidebar.open{left:0; box-shadow:10px 0 30px rgba(0,0,0,.5);}
+    .content{padding:24px 18px 100px;}
+    .menu-toggle{display:flex !important;}
+  }
+  .menu-toggle{
+    display:none; width:30px;height:30px;border-radius:6px;background:var(--element);
+    border:1px solid var(--border2); align-items:center;justify-content:center;cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="menu-toggle" id="menuToggle">☰</div>
+  <div class="logo-sq">L</div>
+  <div>
+    <div class="name">Library</div>
+    <div class="sub">UI документация</div>
+  </div>
+  <input class="search" id="searchBox" placeholder="Поиск по докам... (/)" />
+  <div class="right">
+    <span><span class="dot"></span>Lua 5.1 / Luau</span>
+    <span>Версия исходника: текущая</span>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="cat">Начало</div>
+    <div class="navitem" data-target="intro"><span class="ic"></span>Введение</div>
+    <div class="navitem" data-target="install"><span class="ic"></span>Установка</div>
+    <div class="navitem" data-target="quickstart"><span class="ic"></span>Быстрый старт</div>
+
+    <div class="cat">Структура</div>
+    <div class="navitem" data-target="window"><span class="ic"></span>Window</div>
+    <div class="navitem" data-target="category"><span class="ic"></span>Category</div>
+    <div class="navitem" data-target="page"><span class="ic"></span>Page</div>
+    <div class="navitem" data-target="subpage"><span class="ic"></span>SubPage</div>
+    <div class="navitem" data-target="section"><span class="ic"></span>Section</div>
+
+    <div class="cat">Элементы</div>
+    <div class="navitem" data-target="toggle"><span class="ic"></span>Toggle</div>
+    <div class="navitem" data-target="button"><span class="ic"></span>Button</div>
+    <div class="navitem" data-target="slider"><span class="ic"></span>Slider</div>
+    <div class="navitem" data-target="dropdown"><span class="ic"></span>Dropdown</div>
+    <div class="navitem" data-target="label"><span class="ic"></span>Label</div>
+    <div class="navitem" data-target="textbox"><span class="ic"></span>Textbox</div>
+
+    <div class="cat">Сабэлементы</div>
+    <div class="navitem" data-target="colorpicker"><span class="ic"></span>Colorpicker</div>
+    <div class="navitem" data-target="keybind"><span class="ic"></span>Keybind</div>
+
+    <div class="cat">Система</div>
+    <div class="navitem" data-target="notification"><span class="ic"></span>Notification</div>
+    <div class="navitem" data-target="theming"><span class="ic"></span>Темизация</div>
+    <div class="navitem" data-target="flags"><span class="ic"></span>Flags &amp; SetFlags</div>
+    <div class="navitem" data-target="configs"><span class="ic"></span>Конфиги</div>
+    <div class="navitem" data-target="settingspage"><span class="ic"></span>CreateSettingsPage</div>
+    <div class="navitem" data-target="utility"><span class="ic"></span>Утилиты</div>
+    <div class="navitem" data-target="unload"><span class="ic"></span>Unload</div>
+
+    <div class="cat">Справка</div>
+    <div class="navitem" data-target="fullexample"><span class="ic"></span>Полный пример</div>
+  </nav>
+
+  <main class="content" id="content">
+
+    <section class="hero">
+      <div class="eyebrow">// документация</div>
+      <h1>Library</h1>
+      <p>UI-библиотека для Roblox-исполнителей (executors): окна, страницы, секции, тогглы, слайдеры, дропдауны, колорпикеры, кейбинды, конфиги и полная темизация. Один файл, без зависимостей, кроме кастомного шрифта.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#quickstart">Быстрый старт →</a>
+        <a class="btn" href="#fullexample">Открыть полный пример</a>
+      </div>
+    </section>
+
+    <!-- INTRO -->
+    <div class="section" id="intro">
+      <div class="section-head"><span class="ic"></span><h2>Введение</h2></div>
+      <p class="desc">
+        <b style="color:var(--text)">Library</b> — самописная GUI-библиотека на Luau, рассчитанная на запуск через скрипт-executor
+        (<code>loadstring</code> / <code>getgenv</code>). Она строит интерфейс из вложенных сущностей:
+      </p>
+      <div class="grid2">
+        <div class="mini-card"><h4>Window</h4><p>Главное окно приложения. Перетаскиваемое и изменяемое по размеру.</p></div>
+        <div class="mini-card"><h4>Page</h4><p>Вкладка в левом сайдбаре окна, со своей иконкой.</p></div>
+        <div class="mini-card"><h4>SubPage</h4><p>Под-вкладка внутри Page, делит контент на колонки (Side 1 / 2).</p></div>
+        <div class="mini-card"><h4>Section</h4><p>Карточка-контейнер с заголовком, в которую кладутся элементы управления.</p></div>
+      </div>
+      <p class="desc">Все элементы управления (Toggle, Slider, Dropdown и т.д.) создаются методами на объекте <code>Section</code>, а их состояние хранится в глобальной таблице <code>Library.Flags</code> по ключу <code>Flag</code>.</p>
+      <div class="callout"><b>Важно:</b> библиотека работает только в среде Roblox executor — ей нужны функции <code>getgenv</code>, <code>writefile</code>, <code>isfile</code>, <code>makefolder</code>, <code>getcustomasset</code> и т.д. Обычный Roblox Studio / стандартный клиент их не предоставляет.</div>
+    </div>
+
+    <!-- INSTALL -->
+    <div class="section" id="install">
+      <div class="section-head"><span class="ic"></span><h2>Установка</h2></div>
+      <p class="desc">Загрузите файл библиотеки через ваш executor. Если <code>Library</code> уже существует в <code>getgenv()</code>, она автоматически выгружается перед повторной загрузкой — это позволяет безопасно перезапускать скрипт.</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Library = <span class="tok-fn">loadstring</span>(<span class="tok-fn">game</span>:<span class="tok-fn">HttpGet</span>(<span class="tok-str">"https://.../library.lua"</span>))()</code></pre>
+      <p class="desc">Внутри файла уже встроена защита от повторной загрузки:</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">if</span> getgenv().Library <span class="tok-kw">then</span>
+    getgenv().Library:Unload()
+<span class="tok-kw">end</span></code></pre>
+    </div>
+
+    <!-- QUICKSTART -->
+    <div class="section" id="quickstart">
+      <div class="section-head"><span class="ic"></span><h2>Быстрый старт</h2></div>
+      <p class="desc">Минимальный рабочий пример: окно → страница → подстраница → секция → тоггл.</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Window = Library:<span class="tok-fn">Window</span>({Name = <span class="tok-str">"my hub"</span>})
+
+<span class="tok-kw">local</span> Page = Window:<span class="tok-fn">Page</span>({Name = <span class="tok-str">"Main"</span>, Icon = <span class="tok-str">"136879043989014"</span>})
+<span class="tok-kw">local</span> SubPage = Page:<span class="tok-fn">SubPage</span>({Name = <span class="tok-str">"Combat"</span>})
+<span class="tok-kw">local</span> Section = SubPage:<span class="tok-fn">Section</span>({Name = <span class="tok-str">"Aimbot"</span>, Side = <span class="tok-num">1</span>})
+
+Section:<span class="tok-fn">Toggle</span>({
+    Name = <span class="tok-str">"Enabled"</span>,
+    Flag = <span class="tok-str">"AimbotEnabled"</span>,
+    Default = <span class="tok-kw">false</span>,
+    Callback = <span class="tok-kw">function</span>(Value)
+        <span class="tok-fn">print</span>(<span class="tok-str">"Aimbot:"</span>, Value)
+    <span class="tok-kw">end</span>
+})</code></pre>
+      <div class="callout"><b>Подсказка:</b> клавиша по умолчанию для открытия/закрытия окна — <code>Z</code> (<code>Library.MenuKeybind</code>). Меняется на странице настроек или напрямую через <code>Library.MenuKeybind</code>.</div>
+    </div>
+
+    <!-- WINDOW -->
+    <div class="section" id="window">
+      <div class="section-head"><span class="ic"></span><h2>Window</h2></div>
+      <p class="desc">Создаёт главное окно: перетаскиваемый фрейм с заголовком, иконкой первой буквы имени, сайдбаром страниц и блоком статуса подписки/сессии.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:Window(Data)<a class="anchor-link" href="#window">#</a></h3>
+      <p class="desc">Возвращает объект Window. Автоматически центрируется и открывается с анимацией появления.</p>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>"Window"</td><td>Заголовок окна. Первая буква используется как значок-аватар.</td></tr>
+        <tr><td class="pname">SubTitle</td><td class="ptype">string</td><td>"he"</td><td>Подзаголовок под именем (например, название игры).</td></tr>
+        <tr><td class="pname">ExpiresIn</td><td class="ptype">string</td><td>"23d"</td><td>Текст в нижнем блоке: "Sub expires in …".</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Window = Library:<span class="tok-fn">Window</span>({
+    Name = <span class="tok-str">"ui for skidhub"</span>,
+    SubTitle = <span class="tok-str">"Blox Fruits"</span>,
+    ExpiresIn = <span class="tok-str">"30d"</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Window:SetOpen(Bool)<a class="anchor-link" href="#window">#</a></h3>
+      <p class="desc">Плавно показывает или скрывает окно (фейд всех потомков по transparency-свойствам). Привязано к <code>Library.MenuKeybind</code> по умолчанию.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Window:SetCenter()<a class="anchor-link" href="#window">#</a></h3>
+      <p class="desc">Пересчитывает позицию окна из <code>AnchorPoint(0.5,0.5)</code> в абсолютные координаты — вызывается автоматически при создании, чтобы перетаскивание/ресайз работали корректно.</p>
+    </div>
+
+    <!-- CATEGORY -->
+    <div class="section" id="category">
+      <div class="section-head"><span class="ic"></span><h2>Category</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Library:Category(Name)<a class="anchor-link" href="#category">#</a></h3>
+      <p class="desc">Добавляет текстовый разделитель-заголовок в список страниц сайдбара (например, "Settings" перед страницей настроек). Чисто декоративный элемент, ничего не возвращает для дальнейшей вложенности.</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Window:<span class="tok-fn">Category</span>(<span class="tok-str">"Main"</span>)
+<span class="tok-kw">local</span> CombatPage = Window:<span class="tok-fn">Page</span>({Name = <span class="tok-str">"Combat"</span>})
+
+Window:<span class="tok-fn">Category</span>(<span class="tok-str">"Settings"</span>)
+<span class="tok-kw">local</span> SettingsPage = Library:<span class="tok-fn">CreateSettingsPage</span>(Window)</code></pre>
+    </div>
+
+    <!-- PAGE -->
+    <div class="section" id="page">
+      <div class="section-head"><span class="ic"></span><h2>Page</h2></div>
+      <p class="desc">Вкладка верхнего уровня в сайдбаре окна. Первая созданная страница становится активной автоматически.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Window:Page(Data)<a class="anchor-link" href="#page">#</a></h3>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>"Page"</td><td>Текст вкладки.</td></tr>
+        <tr><td class="pname">Icon</td><td class="ptype">string</td><td>"136879043989014"</td><td>ID ассета Roblox для иконки вкладки.</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> CombatPage = Window:<span class="tok-fn">Page</span>({
+    Name = <span class="tok-str">"Combat"</span>,
+    Icon = <span class="tok-str">"136879043989014"</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Page:Turn(Bool)<a class="anchor-link" href="#page">#</a></h3>
+      <p class="desc">Делает страницу активной/неактивной (переключение вызывается автоматически кликом по вкладке в сайдбаре, но можно вызвать вручную).</p>
+    </div>
+
+    <!-- SUBPAGE -->
+    <div class="section" id="subpage">
+      <div class="section-head"><span class="ic"></span><h2>SubPage</h2></div>
+      <p class="desc">Горизонтальные под-вкладки внутри Page (отображаются под заголовком страницы). Каждая SubPage делит свою область контента на колонки.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Page:SubPage(Data)<a class="anchor-link" href="#subpage">#</a></h3>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>"SubPage"</td><td>Текст под-вкладки.</td></tr>
+        <tr><td class="pname">Columns</td><td class="ptype">number</td><td>2</td><td>Кол-во вертикальных колонок (используются как <code>Side</code> в Section).</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> CombatSub = CombatPage:<span class="tok-fn">SubPage</span>({Name = <span class="tok-str">"Combat"</span>, Columns = <span class="tok-num">2</span>})
+CombatPage:<span class="tok-fn">SubPage</span>({Name = <span class="tok-str">"Weapon"</span>})
+CombatPage:<span class="tok-fn">SubPage</span>({Name = <span class="tok-str">"FoV"</span>})</code></pre>
+      <div class="callout">Первая созданная SubPage внутри Page становится активной по умолчанию.</div>
+    </div>
+
+    <!-- SECTION -->
+    <div class="section" id="section">
+      <div class="section-head"><span class="ic"></span><h2>Section</h2></div>
+      <p class="desc">Карточка с заголовком и (опционально) иконкой. Всё содержимое — тогглы, кнопки, слайдеры и т.д. — добавляется внутрь неё. Каждая Section привязана к одной из колонок SubPage через <code>Side</code>.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>SubPage:Section(Data)<a class="anchor-link" href="#section">#</a></h3>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>"Section"</td><td>Заголовок карточки.</td></tr>
+        <tr><td class="pname">Icon</td><td class="ptype">string</td><td>""</td><td>ID ассета иконки рядом с заголовком.</td></tr>
+        <tr><td class="pname">Side</td><td class="ptype">number</td><td>1</td><td>Номер колонки SubPage, в которую помещается секция (1 = левая, 2 = правая и т.д.).</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Left = CombatSub:<span class="tok-fn">Section</span>({Name = <span class="tok-str">"Aimbot"</span>, Side = <span class="tok-num">1</span>})
+<span class="tok-kw">local</span> Right = CombatSub:<span class="tok-fn">Section</span>({Name = <span class="tok-str">"Visuals"</span>, Side = <span class="tok-num">2</span>})</code></pre>
+    </div>
+
+    <!-- TOGGLE -->
+    <div class="section" id="toggle">
+      <div class="section-head"><span class="ic"></span><h2>Toggle</h2></div>
+      <p class="desc">Бинарный переключатель (вкл/выкл) с галочкой. Поддерживает прикрепление Colorpicker и Keybind справа от себя.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Section:Toggle(Data)<a class="anchor-link" href="#toggle">#</a></h3>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>"Toggle"</td><td>Подпись слева.</td></tr>
+        <tr><td class="pname">Flag</td><td class="ptype">string</td><td>авто-генерация</td><td>Ключ в <code>Library.Flags</code>, по которому хранится <code>boolean</code>.</td></tr>
+        <tr><td class="pname">Default</td><td class="ptype">boolean</td><td>false</td><td>Начальное состояние.</td></tr>
+        <tr><td class="pname">Callback</td><td class="ptype">function(value: boolean)</td><td>noop</td><td>Вызывается при каждом изменении значения.</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Section:<span class="tok-fn">Toggle</span>({
+    Name = <span class="tok-str">"Silent Aim"</span>,
+    Flag = <span class="tok-str">"SilentAim"</span>,
+    Default = <span class="tok-kw">false</span>,
+    Callback = <span class="tok-kw">function</span>(Value)
+        <span class="tok-fn">print</span>(<span class="tok-str">"Silent Aim:"</span>, Value)
+    <span class="tok-kw">end</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Toggle:Get()<a class="anchor-link" href="#toggle">#</a></h3>
+      <p class="desc">Возвращает текущее <code>boolean</code> значение тоггла.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Toggle:Set(Value)<a class="anchor-link" href="#toggle">#</a></h3>
+      <p class="desc">Программно меняет состояние, обновляет визуал и вызывает Callback.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Toggle:SetVisibility(Bool)<a class="anchor-link" href="#toggle">#</a></h3>
+      <p class="desc">Показывает/скрывает элемент целиком (<code>Instance.Visible</code>).</p>
+
+      <h3 class="member"><span class="badge sub">сабэлемент</span>Toggle:Colorpicker(Data)<a class="anchor-link" href="#toggle">#</a></h3>
+      <p class="desc">Прикрепляет квадрат-колорпикер справа от тоггла. Параметры идентичны разделу <a href="#colorpicker">Colorpicker</a>.</p>
+
+      <h3 class="member"><span class="badge sub">сабэлемент</span>Toggle:Keybind(Data)<a class="anchor-link" href="#toggle">#</a></h3>
+      <p class="desc">Прикрепляет кнопку бинда справа от тоггла. Параметры идентичны разделу <a href="#keybind">Keybind</a>.</p>
+
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> ESP = Section:<span class="tok-fn">Toggle</span>({Name = <span class="tok-str">"ESP"</span>, Flag = <span class="tok-str">"ESP"</span>, Default = <span class="tok-kw">true</span>})
+
+ESP:<span class="tok-fn">Colorpicker</span>({
+    Flag = <span class="tok-str">"ESPColor"</span>,
+    Default = Color3.<span class="tok-fn">fromRGB</span>(<span class="tok-num">255</span>, <span class="tok-num">0</span>, <span class="tok-num">0</span>),
+    Callback = <span class="tok-kw">function</span>(Color) <span class="tok-kw">end</span>
+})
+
+ESP:<span class="tok-fn">Keybind</span>({
+    Flag = <span class="tok-str">"ESPKeybind"</span>,
+    Default = Enum.KeyCode.<span class="tok-prop">G</span>,
+    Mode = <span class="tok-str">"Toggle"</span>
+})</code></pre>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="section" id="button">
+      <div class="section-head"><span class="ic"></span><h2>Button</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Section:Button(Data)<a class="anchor-link" href="#button">#</a></h3>
+      <p class="desc">Обычная кнопка с кратковременной анимацией подсветки акцентным цветом при нажатии.</p>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>—</td><td>Текст на кнопке.</td></tr>
+        <tr><td class="pname">Callback</td><td class="ptype">function()</td><td>noop</td><td>Вызывается по клику.</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Section:<span class="tok-fn">Button</span>({
+    Name = <span class="tok-str">"Teleport to spawn"</span>,
+    Callback = <span class="tok-kw">function</span>()
+        <span class="tok-fn">print</span>(<span class="tok-str">"teleported"</span>)
+    <span class="tok-kw">end</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Button:Press()<a class="anchor-link" href="#button">#</a></h3>
+      <p class="desc">Программно "нажимает" кнопку: проигрывает анимацию и вызывает Callback.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Button:SetVisibility(Bool)<a class="anchor-link" href="#button">#</a></h3>
+      <p class="desc">Показывает/скрывает кнопку.</p>
+    </div>
+
+    <!-- SLIDER -->
+    <div class="section" id="slider">
+      <div class="section-head"><span class="ic"></span><h2>Slider</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Section:Slider(Data)<a class="anchor-link" href="#slider">#</a></h3>
+      <p class="desc">Горизонтальный слайдер с перетаскиваемым ползунком. Реагирует на клик в любую точку полосы и на драг.</p>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>"Slider"</td><td>Подпись.</td></tr>
+        <tr><td class="pname">Flag</td><td class="ptype">string</td><td>авто</td><td>Ключ в Flags, хранит <code>number</code>.</td></tr>
+        <tr><td class="pname">Min</td><td class="ptype">number</td><td>0</td><td>Минимум диапазона.</td></tr>
+        <tr><td class="pname">Max</td><td class="ptype">number</td><td>100</td><td>Максимум диапазона.</td></tr>
+        <tr><td class="pname">Default</td><td class="ptype">number</td><td>0</td><td>Начальное значение.</td></tr>
+        <tr><td class="pname">Decimals</td><td class="ptype">number</td><td>1</td><td>Шаг округления (передаётся в <code>Library:Round</code>, например 0.01 для двух знаков).</td></tr>
+        <tr><td class="pname">Suffix</td><td class="ptype">string</td><td>""</td><td>Текст после значения, например <code>"%"</code> или <code>"s"</code>.</td></tr>
+        <tr><td class="pname">Callback</td><td class="ptype">function(value: number)</td><td>noop</td><td>Вызывается при изменении.</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Section:<span class="tok-fn">Slider</span>({
+    Name = <span class="tok-str">"FOV"</span>,
+    Flag = <span class="tok-str">"FOV"</span>,
+    Min = <span class="tok-num">10</span>,
+    Max = <span class="tok-num">180</span>,
+    Default = <span class="tok-num">90</span>,
+    Suffix = <span class="tok-str">"°"</span>,
+    Decimals = <span class="tok-num">1</span>,
+    Callback = <span class="tok-kw">function</span>(Value)
+        <span class="tok-fn">print</span>(<span class="tok-str">"FOV:"</span>, Value)
+    <span class="tok-kw">end</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Slider:Get()<a class="anchor-link" href="#slider">#</a></h3>
+      <p class="desc">Возвращает текущее числовое значение.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Slider:Set(Value)<a class="anchor-link" href="#slider">#</a></h3>
+      <p class="desc">Программно задаёт значение (клампится в диапазон Min/Max и округляется по Decimals).</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Slider:SetVisibility(Bool)<a class="anchor-link" href="#slider">#</a></h3>
+      <p class="desc">Показывает/скрывает слайдер.</p>
+    </div>
+
+    <!-- DROPDOWN -->
+    <div class="section" id="dropdown">
+      <div class="section-head"><span class="ic"></span><h2>Dropdown</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Section:Dropdown(Data)<a class="anchor-link" href="#dropdown">#</a></h3>
+      <p class="desc">Выпадающий список с возможностью одиночного или множественного выбора. Открывается во всплывающем окне поверх интерфейса.</p>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>"Dropdown"</td><td>Подпись слева.</td></tr>
+        <tr><td class="pname">Flag</td><td class="ptype">string</td><td>авто</td><td>Ключ в Flags: <code>string</code> (одиночный режим) или <code>table</code> (Multi).</td></tr>
+        <tr><td class="pname">Items</td><td class="ptype">table&lt;string&gt;</td><td>{}</td><td>Список опций при создании.</td></tr>
+        <tr><td class="pname">Default</td><td class="ptype">string / table</td><td>""</td><td>Опция(и), выбранные по умолчанию.</td></tr>
+        <tr><td class="pname">Multi</td><td class="ptype">boolean</td><td>false</td><td>Разрешить выбор нескольких опций одновременно.</td></tr>
+        <tr><td class="pname">Callback</td><td class="ptype">function(value)</td><td>noop</td><td>Вызывается при любом изменении выбора.</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Weapon = Section:<span class="tok-fn">Dropdown</span>({
+    Name = <span class="tok-str">"Weapon"</span>,
+    Flag = <span class="tok-str">"Weapon"</span>,
+    Items = {<span class="tok-str">"Sword"</span>, <span class="tok-str">"Gun"</span>, <span class="tok-str">"Fists"</span>},
+    Default = <span class="tok-str">"Sword"</span>,
+    Multi = <span class="tok-kw">false</span>,
+    Callback = <span class="tok-kw">function</span>(Value)
+        <span class="tok-fn">print</span>(<span class="tok-str">"Selected:"</span>, Value)
+    <span class="tok-kw">end</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Dropdown:Get()<a class="anchor-link" href="#dropdown">#</a></h3>
+      <p class="desc">Возвращает текущее значение (строка или таблица строк в режиме Multi).</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Dropdown:Set(Option)<a class="anchor-link" href="#dropdown">#</a></h3>
+      <p class="desc">Программно выбирает опцию(и). В Multi-режиме принимает таблицу строк.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Dropdown:Add(Option)<a class="anchor-link" href="#dropdown">#</a></h3>
+      <p class="desc">Добавляет новую опцию в список во время выполнения.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Dropdown:Remove(Option)<a class="anchor-link" href="#dropdown">#</a></h3>
+      <p class="desc">Удаляет опцию по имени.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Dropdown:Refresh(List)<a class="anchor-link" href="#dropdown">#</a></h3>
+      <p class="desc">Полностью пересоздаёт список опций из переданной таблицы строк (используется, например, для списка конфигов).</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Weapon:<span class="tok-fn">Add</span>(<span class="tok-str">"Bow"</span>)
+Weapon:<span class="tok-fn">Remove</span>(<span class="tok-str">"Fists"</span>)
+Weapon:<span class="tok-fn">Refresh</span>({<span class="tok-str">"Sword"</span>, <span class="tok-str">"Bow"</span>, <span class="tok-str">"Staff"</span>})</code></pre>
+    </div>
+
+    <!-- LABEL -->
+    <div class="section" id="label">
+      <div class="section-head"><span class="ic"></span><h2>Label</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Section:Label(Name)<a class="anchor-link" href="#label">#</a></h3>
+      <p class="desc">Простая строка текста. Часто используется как обёртка для одиночного Colorpicker или Keybind (как в Settings → Theming).</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> L = Section:<span class="tok-fn">Label</span>(<span class="tok-str">"Esp Color"</span>)</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Label:SetText(Text)<a class="anchor-link" href="#label">#</a></h3>
+      <p class="desc">Меняет текст лейбла.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Label:SetVisibility(Bool)<a class="anchor-link" href="#label">#</a></h3>
+      <p class="desc">Показывает/скрывает лейбл.</p>
+
+      <h3 class="member"><span class="badge sub">сабэлемент</span>Label:Colorpicker(Data)<a class="anchor-link" href="#label">#</a></h3>
+      <p class="desc">См. раздел <a href="#colorpicker">Colorpicker</a> — параметры идентичны.</p>
+
+      <h3 class="member"><span class="badge sub">сабэлемент</span>Label:Keybind(Data)<a class="anchor-link" href="#label">#</a></h3>
+      <p class="desc">См. раздел <a href="#keybind">Keybind</a> — параметры идентичны.</p>
+
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Section:<span class="tok-fn">Label</span>(<span class="tok-str">"Esp Color"</span>):<span class="tok-fn">Colorpicker</span>({
+    Flag = <span class="tok-str">"EspColor"</span>,
+    Default = Color3.<span class="tok-fn">fromRGB</span>(<span class="tok-num">255</span>,<span class="tok-num">255</span>,<span class="tok-num">255</span>)
+})</code></pre>
+    </div>
+
+    <!-- TEXTBOX -->
+    <div class="section" id="textbox">
+      <div class="section-head"><span class="ic"></span><h2>Textbox</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Section:Textbox(Data)<a class="anchor-link" href="#textbox">#</a></h3>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Flag</td><td class="ptype">string</td><td>авто</td><td>Ключ в Flags, хранит <code>string</code>.</td></tr>
+        <tr><td class="pname">Default</td><td class="ptype">string</td><td>""</td><td>Начальный текст.</td></tr>
+        <tr><td class="pname">Placeholder</td><td class="ptype">string</td><td>"Placeholder"</td><td>Текст-подсказка, когда поле пустое.</td></tr>
+        <tr><td class="pname">Numeric</td><td class="ptype">boolean</td><td>false</td><td>Если true — отклоняет ввод, который не парсится <code>tonumber</code>.</td></tr>
+        <tr><td class="pname">Finished</td><td class="ptype">boolean</td><td>false</td><td>Если true — Callback срабатывает только по Enter (FocusLost), а не на каждый символ.</td></tr>
+        <tr><td class="pname">Callback</td><td class="ptype">function(value: string)</td><td>noop</td><td>Вызывается при изменении текста (с учётом Finished).</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Section:<span class="tok-fn">Textbox</span>({
+    Flag = <span class="tok-str">"PlayerName"</span>,
+    Placeholder = <span class="tok-str">"Enter username"</span>,
+    Default = <span class="tok-str">""</span>,
+    Numeric = <span class="tok-kw">false</span>,
+    Finished = <span class="tok-kw">true</span>,
+    Callback = <span class="tok-kw">function</span>(Value)
+        <span class="tok-fn">print</span>(<span class="tok-str">"Target:"</span>, Value)
+    <span class="tok-kw">end</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Textbox:Get()<a class="anchor-link" href="#textbox">#</a></h3>
+      <p class="desc">Возвращает текущий текст.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Textbox:Set(Value)<a class="anchor-link" href="#textbox">#</a></h3>
+      <p class="desc">Программно задаёт текст (с проверкой Numeric, если включена).</p>
+    </div>
+
+    <!-- COLORPICKER -->
+    <div class="section" id="colorpicker">
+      <div class="section-head"><span class="ic"></span><h2>Colorpicker</h2></div>
+      <p class="desc">Квадратная кнопка-индикатор цвета, открывающая всплывающую палитру (насыщенность/яркость + полоса оттенка). Создаётся не напрямую, а через <code>:Colorpicker()</code> на Toggle или Label.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Toggle:Colorpicker(Data) / Label:Colorpicker(Data)<a class="anchor-link" href="#colorpicker">#</a></h3>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Flag</td><td class="ptype">string</td><td>авто</td><td>Ключ в Flags. Хранит таблицу <code>{Color, HexValue}</code>.</td></tr>
+        <tr><td class="pname">Default</td><td class="ptype">Color3</td><td>RGB(255,255,255)</td><td>Начальный цвет.</td></tr>
+        <tr><td class="pname">Callback</td><td class="ptype">function(color: Color3, alpha)</td><td>noop</td><td>Вызывается при изменении цвета.</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Section:<span class="tok-fn">Label</span>(<span class="tok-str">"Chams Color"</span>):<span class="tok-fn">Colorpicker</span>({
+    Flag = <span class="tok-str">"ChamsColor"</span>,
+    Default = Color3.<span class="tok-fn">fromRGB</span>(<span class="tok-num">0</span>, <span class="tok-num">255</span>, <span class="tok-num">120</span>),
+    Callback = <span class="tok-kw">function</span>(Color)
+        <span class="tok-fn">print</span>(Color)
+    <span class="tok-kw">end</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Colorpicker:Get()<a class="anchor-link" href="#colorpicker">#</a></h3>
+      <p class="desc">Возвращает текущий <code>Color3</code>.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Colorpicker:Set(Color, Alpha)<a class="anchor-link" href="#colorpicker">#</a></h3>
+      <p class="desc">Принимает <code>Color3</code>, hex-строку (<code>"#FF0000"</code>) или таблицу <code>{r,g,b,alpha}</code>.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Colorpicker:SetOpen(Bool)<a class="anchor-link" href="#colorpicker">#</a></h3>
+      <p class="desc">Открывает/закрывает всплывающую палитру программно.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Colorpicker:SetVisibility(Bool)<a class="anchor-link" href="#colorpicker">#</a></h3>
+      <p class="desc">Показывает/скрывает квадрат-индикатор.</p>
+    </div>
+
+    <!-- KEYBIND -->
+    <div class="section" id="keybind">
+      <div class="section-head"><span class="ic"></span><h2>Keybind</h2></div>
+      <p class="desc">Кнопка для назначения клавиши/кнопки мыши, с тремя режимами срабатывания. Создаётся через <code>:Keybind()</code> на Toggle или Label.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Toggle:Keybind(Data) / Label:Keybind(Data)<a class="anchor-link" href="#keybind">#</a></h3>
+      <table class="params">
+        <tr><th>Поле</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+        <tr><td class="pname">Flag</td><td class="ptype">string</td><td>авто</td><td>Ключ в Flags. Хранит <code>{Key, Mode, Toggled}</code>.</td></tr>
+        <tr><td class="pname">Default</td><td class="ptype">Enum.KeyCode</td><td>Enum.KeyCode.E</td><td>Клавиша по умолчанию.</td></tr>
+        <tr><td class="pname">Mode</td><td class="ptype">"Toggle" | "Hold" | "Always"</td><td>"Toggle"</td><td>Логика срабатывания (см. ниже).</td></tr>
+        <tr><td class="pname">Callback</td><td class="ptype">function(toggled: boolean)</td><td>noop</td><td>Вызывается при срабатывании/отпускании.</td></tr>
+      </table>
+
+      <div class="grid2">
+        <div class="mini-card"><h4>Toggle</h4><p>Каждое нажатие инвертирует состояние.</p></div>
+        <div class="mini-card"><h4>Hold</h4><p>Активно только пока клавиша зажата.</p></div>
+        <div class="mini-card"><h4>Always</h4><p>Всегда true вне зависимости от клавиши (полезно для "включено по умолчанию").</p></div>
+      </div>
+
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Section:<span class="tok-fn">Label</span>(<span class="tok-str">"Aimbot Key"</span>):<span class="tok-fn">Keybind</span>({
+    Flag = <span class="tok-str">"AimKey"</span>,
+    Default = Enum.KeyCode.<span class="tok-prop">Q</span>,
+    Mode = <span class="tok-str">"Hold"</span>,
+    Callback = <span class="tok-kw">function</span>(Active)
+        <span class="tok-fn">print</span>(<span class="tok-str">"Aiming:"</span>, Active)
+    <span class="tok-kw">end</span>
+})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Keybind:Get()<a class="anchor-link" href="#keybind">#</a></h3>
+      <p class="desc">Возвращает <code>Key, Mode, Toggled</code>.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Keybind:Set(Key)<a class="anchor-link" href="#keybind">#</a></h3>
+      <p class="desc">Принимает <code>Enum.KeyCode</code>/<code>Enum.UserInputType</code>, таблицу <code>{Key, Mode}</code> или строку режима ("Toggle"/"Hold"/"Always").</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Keybind:Press(Bool)<a class="anchor-link" href="#keybind">#</a></h3>
+      <p class="desc">Программно эмулирует нажатие/отпускание с учётом текущего режима.</p>
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div class="section" id="notification">
+      <div class="section-head"><span class="ic"></span><h2>Notification</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Library:Notification(Name, Duration, Icon)<a class="anchor-link" href="#notification">#</a></h3>
+      <p class="desc">Показывает всплывающее уведомление в правом столбце (Notification holder), с фейд-анимацией появления/исчезновения.</p>
+      <table class="params">
+        <tr><th>Параметр</th><th>Тип</th><th>Описание</th></tr>
+        <tr><td class="pname">Name</td><td class="ptype">string</td><td>Текст уведомления.</td></tr>
+        <tr><td class="pname">Duration</td><td class="ptype">number</td><td>Сколько секунд держится на экране до исчезновения.</td></tr>
+        <tr><td class="pname">Icon</td><td class="ptype">string?</td><td>ID ассета иконки слева от текста. Можно передать <code>nil</code>.</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Library:<span class="tok-fn">Notification</span>(<span class="tok-str">"Loaded successfully"</span>, <span class="tok-num">5</span>, <span class="tok-kw">nil</span>)
+Library:<span class="tok-fn">Notification</span>(<span class="tok-str">"Config saved"</span>, <span class="tok-num">3</span>, <span class="tok-str">"94627324690861"</span>)</code></pre>
+    </div>
+
+    <!-- THEMING -->
+    <div class="section" id="theming">
+      <div class="section-head"><span class="ic"></span><h2>Темизация</h2></div>
+      <p class="desc">Все цвета интерфейса завязаны на таблицу <code>Library.Theme</code>. Любой элемент, помеченный в коде библиотеки через <code>:AddToTheme()</code>, автоматически обновится при смене темы.</p>
+
+      <div class="swatches">
+        <div class="swatch"><div class="chip" style="background:#101212"></div><span>Background</span></div>
+        <div class="swatch"><div class="chip" style="background:#151818"></div><span>Inline</span></div>
+        <div class="swatch"><div class="chip" style="background:#1e2222"></div><span>Element</span></div>
+        <div class="swatch"><div class="chip" style="background:#ffffff"></div><span>Accent</span></div>
+        <div class="swatch"><div class="chip" style="background:#1e2222;border-color:#383e3e"></div><span>Border</span></div>
+        <div class="swatch"><div class="chip" style="background:#383e3e"></div><span>Border 2</span></div>
+      </div>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:ChangeTheme(Theme, Color)<a class="anchor-link" href="#theming">#</a></h3>
+      <p class="desc">Меняет именованный цвет темы (например <code>"Accent"</code>) и применяет его ко всем подписанным элементам.</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Library:<span class="tok-fn">ChangeTheme</span>(<span class="tok-str">"Accent"</span>, Color3.<span class="tok-fn">fromRGB</span>(<span class="tok-num">120</span>, <span class="tok-num">180</span>, <span class="tok-num">255</span>))</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:AddToTheme(Item, Properties)<a class="anchor-link" href="#theming">#</a></h3>
+      <p class="desc">Подписывает инстанс на тему: <code>Properties</code> — таблица <code>{PropertyName = "ThemeKey"}</code>. Используется внутри самой библиотеки при создании каждого элемента, но доступна и для кастомных инстансов.</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>MyFrame:<span class="tok-fn">AddToTheme</span>({BackgroundColor3 = <span class="tok-str">"Element"</span>})</code></pre>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:ChangeItemTheme(Item, Properties)<a class="anchor-link" href="#theming">#</a></h3>
+      <p class="desc">Переопределяет, на какие свойства темы реагирует конкретный инстанс (используется, например, в Button при анимации нажатия).</p>
+
+      <div class="callout">Встроенная страница настроек (<a href="#settingspage">CreateSettingsPage</a>) уже содержит вкладку <b>Theming</b> с колорпикером для каждого ключа темы — отдельно реализовывать UI для этого не нужно.</div>
+    </div>
+
+    <!-- FLAGS -->
+    <div class="section" id="flags">
+      <div class="section-head"><span class="ic"></span><h2>Flags &amp; SetFlags</h2></div>
+      <p class="desc"><code>Library.Flags</code> — единая таблица состояния всех элементов с <code>Flag</code>. Ключ — строка Flag, значение зависит от типа элемента.</p>
+      <table class="params">
+        <tr><th>Элемент</th><th>Тип значения в Flags</th></tr>
+        <tr><td>Toggle</td><td class="ptype">boolean</td></tr>
+        <tr><td>Slider</td><td class="ptype">number</td></tr>
+        <tr><td>Dropdown</td><td class="ptype">string | table&lt;string&gt;</td></tr>
+        <tr><td>Textbox</td><td class="ptype">string</td></tr>
+        <tr><td>Colorpicker</td><td class="ptype">{Color: Color3, HexValue: string}</td></tr>
+        <tr><td>Keybind</td><td class="ptype">{Key: string, Mode: string, Toggled: boolean}</td></tr>
+      </table>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">if</span> Library.Flags[<span class="tok-str">"AimbotEnabled"</span>] <span class="tok-kw">then</span>
+    <span class="tok-com">-- логика аимбота</span>
+<span class="tok-kw">end</span></code></pre>
+      <p class="desc"><code>Library.SetFlags</code> — таблица функций-сеттеров по тем же ключам, используется внутри <code>LoadConfig</code> для применения сохранённых значений к уже созданным элементам.</p>
+    </div>
+
+    <!-- CONFIGS -->
+    <div class="section" id="configs">
+      <div class="section-head"><span class="ic"></span><h2>Конфиги</h2></div>
+      <p class="desc">Конфиги сохраняются как JSON-файлы в папке <code>Library.Folders.Configs</code> ("Crown/Configs" по умолчанию) через файловое API executor'а.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:GetConfig()<a class="anchor-link" href="#configs">#</a></h3>
+      <p class="desc">Сериализует текущие <code>Library.Flags</code> в JSON-строку. Keybind и Colorpicker сериализуются в специальном формате (<code>{Key, Mode}</code> / <code>{Color, Alpha}</code>).</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:LoadConfig(Config)<a class="anchor-link" href="#configs">#</a></h3>
+      <p class="desc">Принимает JSON-строку, парсит и применяет значения через <code>Library.SetFlags</code> к уже существующим элементам.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:DeleteConfig(Config)<a class="anchor-link" href="#configs">#</a></h3>
+      <p class="desc">Удаляет файл конфига по имени (с расширением), если он существует.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:RefreshConfigsList(Element)<a class="anchor-link" href="#configs">#</a></h3>
+      <p class="desc">Пересчитывает список файлов в папке конфигов и вызывает <code>Element:Refresh(...)</code> на переданном Dropdown.</p>
+
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-com">-- сохранить</span>
+writefile(Library.Folders.Configs .. <span class="tok-str">"/profile1.json"</span>, Library:<span class="tok-fn">GetConfig</span>())
+
+<span class="tok-com">-- загрузить</span>
+<span class="tok-kw">local</span> Data = readfile(Library.Folders.Configs .. <span class="tok-str">"/profile1.json"</span>)
+Library:<span class="tok-fn">LoadConfig</span>(Data)</code></pre>
+      <div class="callout">Готовый UI для создания/удаления/загрузки/сохранения конфигов уже встроен во вкладку <b>Settings → Configs</b>, создаваемую через <a href="#settingspage">CreateSettingsPage</a>.</div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="section" id="settingspage">
+      <div class="section-head"><span class="ic"></span><h2>CreateSettingsPage</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Library:CreateSettingsPage(Window)<a class="anchor-link" href="#settingspage">#</a></h3>
+      <p class="desc">Готовая страница настроек "под ключ" — добавляет в окно вкладку <b>Settings</b> с тремя под-вкладками:</p>
+      <div class="grid2">
+        <div class="mini-card"><h4>Configs</h4><p>Создание, сохранение, загрузка, удаление и обновление списка конфигов.</p></div>
+        <div class="mini-card"><h4>Theming</h4><p>Колорпикер для каждого ключа в <code>Library.Theme</code>.</p></div>
+        <div class="mini-card"><h4>Settings</h4><p>Unload-кнопка, кейбинд открытия меню, скорость/стиль/направление твинов.</p></div>
+      </div>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Window = Library:<span class="tok-fn">Window</span>({Name = <span class="tok-str">"my hub"</span>})
+<span class="tok-com">-- ... создаём остальные страницы ...</span>
+<span class="tok-kw">local</span> SettingsPage = Library:<span class="tok-fn">CreateSettingsPage</span>(Window)</code></pre>
+    </div>
+
+    <!-- UTILITY -->
+    <div class="section" id="utility">
+      <div class="section-head"><span class="ic"></span><h2>Утилиты</h2></div>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:Thread(Function)<a class="anchor-link" href="#utility">#</a></h3>
+      <p class="desc">Запускает функцию в отдельной corutine, отслеживаемой библиотекой (закрывается при <code>Unload</code>).</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:Connect(Event, Callback, Name?)<a class="anchor-link" href="#utility">#</a></h3>
+      <p class="desc">Подключает обработчик к RBXScriptSignal с авто-учётом соединения в <code>Library.Connections</code> для последующей отписки.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:Disconnect(Name)<a class="anchor-link" href="#utility">#</a></h3>
+      <p class="desc">Отписывает именованное соединение, созданное через <code>Connect</code>.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:SafeCall(Function, ...)<a class="anchor-link" href="#utility">#</a></h3>
+      <p class="desc">Обёртка над <code>pcall</code>: при ошибке логирует через <code>warn</code> и возвращает <code>false</code> вместо краша. Используется при каждом вызове пользовательских Callback.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:Round(Number, Float)<a class="anchor-link" href="#utility">#</a></h3>
+      <p class="desc">Округляет число с заданным шагом (например, <code>Round(57.3, 0.1)</code> → <code>57.3</code>).</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:Lerp(Start, Finish, Time)<a class="anchor-link" href="#utility">#</a></h3>
+      <p class="desc">Линейная интерполяция между двумя числами.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:ToRich(Text, Color)<a class="anchor-link" href="#utility">#</a></h3>
+      <p class="desc">Оборачивает текст в <code>&lt;font color="rgb(...)"&gt;</code> для richtext-лейблов на основе <code>Color3</code>.</p>
+
+      <h3 class="member"><span class="badge method">метод</span>Library:IsMouseOverFrame(Frame)<a class="anchor-link" href="#utility">#</a></h3>
+      <p class="desc">Проверяет, находится ли курсор мыши внутри границ переданного фрейма. Используется для закрытия попапов по клику вне их.</p>
+    </div>
+
+    <!-- UNLOAD -->
+    <div class="section" id="unload">
+      <div class="section-head"><span class="ic"></span><h2>Unload</h2></div>
+      <h3 class="member"><span class="badge method">метод</span>Library:Unload()<a class="anchor-link" href="#unload">#</a></h3>
+      <p class="desc">Полностью выгружает интерфейс: отключает все соединения, закрывает все потоки, уничтожает корневой ScreenGui и очищает <code>getgenv().Library</code>. Вызывается автоматически при повторной загрузке скрипта, либо вручную (например, кнопкой "Unload" на странице настроек).</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code>Library:<span class="tok-fn">Unload</span>()</code></pre>
+    </div>
+
+    <!-- FULL EXAMPLE -->
+    <div class="section" id="fullexample">
+      <div class="section-head"><span class="ic"></span><h2>Полный пример</h2></div>
+      <p class="desc">Сборка окна с категориями, несколькими страницами, под-страницами на две колонки и всеми типами элементов — аналогично демо-блоку в исходнике библиотеки.</p>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Window = Library:<span class="tok-fn">Window</span>({Name = <span class="tok-str">"ui for skidhub"</span>})
+
+Window:<span class="tok-fn">Category</span>(<span class="tok-str">"Main"</span>)
+<span class="tok-kw">local</span> CombatPage = Window:<span class="tok-fn">Page</span>({Name = <span class="tok-str">"Combat"</span>, Icon = <span class="tok-str">"136879043989014"</span>})
+<span class="tok-kw">local</span> VisualsPage = Window:<span class="tok-fn">Page</span>({Name = <span class="tok-str">"Visuals"</span>, Icon = <span class="tok-str">"136879043989014"</span>})
+
+<span class="tok-kw">local</span> CombatSub = CombatPage:<span class="tok-fn">SubPage</span>({Name = <span class="tok-str">"Combat"</span>})
+CombatPage:<span class="tok-fn">SubPage</span>({Name = <span class="tok-str">"Weapon"</span>})
+
+Window:<span class="tok-fn">Category</span>(<span class="tok-str">"Settings"</span>)
+<span class="tok-kw">local</span> SettingsPage = Library:<span class="tok-fn">CreateSettingsPage</span>(Window)
+
+<span class="tok-kw">local</span> AimbotSection = CombatSub:<span class="tok-fn">Section</span>({Name = <span class="tok-str">"Aimbot"</span>, Icon = <span class="tok-str">"136879043989014"</span>, Side = <span class="tok-num">1</span>})
+
+AimbotSection:<span class="tok-fn">Toggle</span>({Name = <span class="tok-str">"Enabled"</span>, Flag = <span class="tok-str">"AimbotEnabled"</span>, Callback = <span class="tok-kw">function</span>(v) <span class="tok-fn">print</span>(v) <span class="tok-kw">end</span>})
+AimbotSection:<span class="tok-fn">Button</span>({Name = <span class="tok-str">"Reset"</span>, Callback = <span class="tok-kw">function</span>() <span class="tok-fn">print</span>(<span class="tok-str">"reset"</span>) <span class="tok-kw">end</span>})
+AimbotSection:<span class="tok-fn">Slider</span>({Name = <span class="tok-str">"FOV"</span>, Flag = <span class="tok-str">"FOV"</span>, Min = <span class="tok-num">0</span>, Max = <span class="tok-num">100</span>, Default = <span class="tok-num">50</span>, Suffix = <span class="tok-str">"%"</span>})
+AimbotSection:<span class="tok-fn">Dropdown</span>({Name = <span class="tok-str">"Priority"</span>, Flag = <span class="tok-str">"Priority"</span>, Items = {<span class="tok-str">"Distance"</span>, <span class="tok-str">"Health"</span>}, Default = <span class="tok-str">"Distance"</span>})
+AimbotSection:<span class="tok-fn">Label</span>(<span class="tok-str">"FOV Color"</span>):<span class="tok-fn">Colorpicker</span>({Flag = <span class="tok-str">"FOVColor"</span>, Default = Color3.<span class="tok-fn">fromRGB</span>(<span class="tok-num">255</span>,<span class="tok-num">255</span>,<span class="tok-num">255</span>)})
+AimbotSection:<span class="tok-fn">Label</span>(<span class="tok-str">"Aim Key"</span>):<span class="tok-fn">Keybind</span>({Flag = <span class="tok-str">"AimKey"</span>, Default = Enum.KeyCode.<span class="tok-prop">E</span>, Mode = <span class="tok-str">"Hold"</span>})
+AimbotSection:<span class="tok-fn">Textbox</span>({Flag = <span class="tok-str">"TargetName"</span>, Placeholder = <span class="tok-str">"Username"</span>})
+
+Library:<span class="tok-fn">Notification</span>(<span class="tok-str">"UI loaded"</span>, <span class="tok-num">4</span>, <span class="tok-kw">nil</span>)</code></pre>
+    </div>
+
+    <footer>
+      <span>Library — справочная документация</span>
+      <span>сгенерировано из исходного кода</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // active nav highlighting + smooth scroll
+  const navItems = document.querySelectorAll('.navitem');
+  const sections = document.querySelectorAll('.section, .hero');
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const id = item.getAttribute('data-target');
+      const el = document.getElementById(id);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      if(window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+    });
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const id = entry.target.id;
+        navItems.forEach(i => i.classList.toggle('active', i.getAttribute('data-target') === id));
+      }
+    });
+  }, {rootMargin: '-15% 0px -75% 0px'});
+
+  document.querySelectorAll('.section[id]').forEach(s => observer.observe(s));
+
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  function copyCode(btn){
+    const code = btn.parentElement.querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      const old = btn.innerText;
+      btn.innerText = 'Copied';
+      setTimeout(() => btn.innerText = old, 1200);
+    });
+  }
+
+  // simple search: filter navitems by visible text + jump to first match on Enter
+  const searchBox = document.getElementById('searchBox');
+  searchBox.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      const q = searchBox.value.trim().toLowerCase();
+      if(!q) return;
+      const match = Array.from(navItems).find(i => i.innerText.toLowerCase().includes(q));
+      if(match) match.click();
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === '/' && document.activeElement !== searchBox){
+      e.preventDefault();
+      searchBox.focus();
+    }
+  });
+</script>
+
+</body>
+</html>
