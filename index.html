@@ -308,7 +308,7 @@
     <div class="section" id="install">
       <div class="section-head"><span class="ic"></span><h2>Установка</h2></div>
       <p class="desc">Загрузите файл библиотеки через ваш executor. Если <code>Library</code> уже существует в <code>getgenv()</code>, она автоматически выгружается перед повторной загрузкой — это позволяет безопасно перезапускать скрипт.</p>
-      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Library = <span class="tok-fn">loadstring</span>(<span class="tok-fn">game</span>:<span class="tok-fn">HttpGet</span>(<span class="tok-str">"https://.../library.lua"</span>))()</code></pre>
+      <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">local</span> Library = <span class="tok-fn">loadstring</span>(<span class="tok-fn">game</span>:<span class="tok-fn">HttpGet</span>(<span class="tok-str">"https://raw.githubusercontent.com/treex1377333-creator/guiforraknet/refs/heads/main/source.lua"</span>))()</code></pre>
       <p class="desc">Внутри файла уже встроена защита от повторной загрузки:</p>
       <pre class="code"><span class="copy" onclick="copyCode(this)">Copy</span><code><span class="tok-kw">if</span> getgenv().Library <span class="tok-kw">then</span>
     getgenv().Library:Unload()
