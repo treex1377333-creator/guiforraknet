@@ -1,6 +1,6 @@
 -- made by paladin (vcred64 on discord)
 -- fork by klarkk ( t.me/goveci )
--- version: 1.2 fix
+-- version: 1.3 fix
 
 if getgenv().Library then
     getgenv().Library:Unload()
@@ -2518,30 +2518,43 @@ local Library do
             return setmetatable(Page, Library.Pages)
         end
 
-        Library.Pages.Section = function(self, Data)
-            Data = Data or { }
-
-            local Section = {
-                Window = self.Window,
-                Page = self,
-
-                Name = Data.Name or Data.name or "Section",
-                Icon = Data.Icon or Data.icon or "",
-                Side = Data.Side or Data.side or 1,
-
-                Items = { }
-            }
-
-            local Items = { } do
-                Items["Section"] = Instances:Create("Frame", {
-                    Parent = Section.Page.ColumnsData[Section.Side].Instance,
-                    Name = "\0",
-                    Size = UDim2New(1, 0, 0, 25),
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    BorderSizePixel = 0,
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    BackgroundColor3 = FromRGB(21, 24, 24)
-                })  Items["Section"]:AddToTheme({BackgroundColor3 = "Inline"})
+		Library.Pages.Section = function(self, Data)
+		    Data = Data or { }
+		
+		    local Section = {
+		        Window = self.Window,
+		        Page = self,
+		
+		        Name = Data.Name or Data.name or "Section",
+		        Icon = Data.Icon or Data.icon or "",
+		        Side = Data.Side or Data.side or 1,
+		
+		        Items = { }
+		    }
+		
+		    local ColumnInstance = Section.Page.ColumnsData[Section.Side].Instance
+		
+		    -- Проверяем, есть ли уже UIListLayout в колонке. Если нет — создаём.
+		    if not ColumnInstance:FindFirstChildOfClass("UIListLayout") then
+		        Instances:Create("UIListLayout", {
+		            Parent = ColumnInstance,
+		            Name = "ColumnLayout",
+		            Padding = UDimNew(0, 10), -- Зазор между секциями
+		            SortOrder = Enum.SortOrder.LayoutOrder
+		        })
+		    end
+		
+		    local Items = { } do
+		        Items["Section"] = Instances:Create("Frame", {
+		            Parent = ColumnInstance,
+		            Name = "\0",
+		            Size = UDim2New(1, 0, 0, 25),
+		            BorderColor3 = FromRGB(0, 0, 0),
+		            BorderSizePixel = 0,
+		            AutomaticSize = Enum.AutomaticSize.Y,
+		            BackgroundColor3 = FromRGB(21, 24, 24)
+		        })  
+		        Items["Section"]:AddToTheme({BackgroundColor3 = "Inline"})
                 
                 Instances:Create("UICorner", {
                     Parent = Items["Section"].Instance,
