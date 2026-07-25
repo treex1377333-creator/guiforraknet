@@ -1,6 +1,9 @@
 -- made by paladin (vcred64 on discord)
 -- fork by klarkk ( t.me/goveci )
--- version: 1.3 fix
+-- ===========================================
+--					UPD 2
+--  added visible function for all elements
+-- ============================================
 
 if getgenv().Library then
     getgenv().Library:Unload()
@@ -1043,6 +1046,10 @@ local Library do
                 Items["ColorpickerButton"].Instance.Visible = Bool
             end
 
+            function Colorpicker:Visible(Bool)
+                Colorpicker:SetVisibility(Bool)
+            end
+
             function Colorpicker:SetOpen(Bool)
                 if Debounce then 
                     return
@@ -1493,6 +1500,14 @@ local Library do
                     task.wait(0.2)
                     Items["KeybindWindow"].Instance.Parent = not Keybind.IsOpen and Library.UnusedHolder.Instance or Library.Holder.Instance
                 end)
+            end
+
+            function Keybind:SetVisibility(Bool)
+                Items["KeyButton"].Instance.Visible = Bool
+            end
+
+            function Keybind:Visible(Bool)
+                Keybind:SetVisibility(Bool)
             end
 
             function Keybind:SetMode(Mode)
@@ -2104,6 +2119,10 @@ local Library do
                 Items["MainFrame"].Instance.Position = UDim2New(0, CenterPosition.X, 0, CenterPosition.Y)
             end
 
+            function Window:Visible(Bool)
+                Items["MainFrame"].Instance.Visible = Bool
+            end
+
             function Window:SetOpen(Bool)
                 if Debounce then 
                     return
@@ -2309,6 +2328,10 @@ local Library do
 
             local Debounce = false
 
+            function Page:Visible(Bool)
+                Items["Inactive"].Instance.Visible = Bool
+            end
+
             function Page:Turn(Bool)
                 if Debounce then 
                     return 
@@ -2480,6 +2503,10 @@ local Library do
 
             local Debounce = false
 
+            function Page:Visible(Bool)
+                Items["Inactive"].Instance.Visible = Bool
+            end
+
             function Page:Turn(Bool)
                 if Debounce then 
                     return 
@@ -2624,6 +2651,10 @@ local Library do
                 })
                 
                 Section.Items = Items
+            end
+
+            function Section:Visible(Bool)
+                Items["Section"].Instance.Visible = Bool
             end
 
             return setmetatable(Section, Library.Sections)
@@ -2785,6 +2816,10 @@ local Library do
                 Items["Toggle"].Instance.Visible = Bool 
             end
 
+            function Toggle:Visible(Bool)
+                Toggle:SetVisibility(Bool)
+            end
+
             function Toggle:Colorpicker(Data)
                 Data = Data or { }
 
@@ -2900,6 +2935,10 @@ local Library do
 
             function Button:SetVisibility(Bool)
                 Items["Button"].Instance.Visible = Bool
+            end
+
+            function Button:Visible(Bool)
+                Button:SetVisibility(Bool)
             end
 
             function Button:Press()
@@ -3049,6 +3088,10 @@ local Library do
 
             function Slider:SetVisibility(Bool)
                 Items["Slider"].Instance.Visible = Bool
+            end
+
+            function Slider:Visible(Bool)
+                Slider:SetVisibility(Bool)
             end
 
             function Slider:Set(Value)
@@ -3291,6 +3334,10 @@ local Library do
 
             function Dropdown:SetVisibility(Bool)
                 Items["Dropdown"].Instance.Visible = Bool
+            end
+
+            function Dropdown:Visible(Bool)
+                Dropdown:SetVisibility(Bool)
             end
 
             local Debounce = false
@@ -3627,6 +3674,10 @@ local Library do
                 Items["Label"].Instance.Visible = Bool
             end
 
+            function Label:Visible(Bool)
+                Label:SetVisibility(Bool)
+            end
+
             function Label:Colorpicker(Data)
                 Data = Data or { }
 
@@ -3756,6 +3807,10 @@ local Library do
 
             function Textbox:SetVisibility(Bool)
                 Items["Textbox"].Instance.Visible = Bool
+            end
+
+            function Textbox:Visible(Bool)
+                Textbox:SetVisibility(Bool)
             end
 
             function Textbox:Set(Value)
