@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crown UI — документация</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #0f1212;
+    --inline:    #151818;
+    --element:   #1c2020;
+    --border:    #23292a;
+    --border-2:  #383e3e;
+    --text:      #eef2f2;
+    --text-dim:  #93a0a0;
+    --text-faint:#5c6666;
+    --accent:    #a4e5ff;
+    --accent-dim: rgba(164,229,255,.14);
+    --radius:    10px;
+    --radius-sm: 6px;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Inter', -apple-system, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(164,229,255,.05), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+  }
+
+  ::selection{ background:var(--accent-dim); color:var(--accent); }
+
+  a{ color:var(--accent); text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+
+  code, .mono{ font-family:var(--mono); }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; gap:12px;
+    padding:14px 28px;
+    background:rgba(15,18,18,.86);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar .crown{
+    width:26px; height:26px; border-radius:7px;
+    background:var(--element);
+    border:1px solid var(--border-2);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--accent); font-size:13px; font-weight:700;
+    font-family:var(--mono);
+  }
+  .topbar .name{ font-weight:700; letter-spacing:.2px; }
+  .topbar .tag{
+    color:var(--text-faint); font-size:12.5px; font-family:var(--mono);
+    padding:3px 8px; border:1px solid var(--border); border-radius:999px;
+  }
+  .topbar .spacer{flex:1}
+  .topbar .kbd{
+    font-family:var(--mono); font-size:12px; color:var(--text-dim);
+    border:1px solid var(--border-2); background:var(--element);
+    padding:3px 7px; border-radius:5px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:64px 28px 40px;
+    max-width:1180px; margin:0 auto;
+    display:grid; grid-template-columns: 1.1fr .9fr; gap:48px; align-items:center;
+  }
+  .hero .eyebrow{
+    font-family:var(--mono); font-size:12.5px; color:var(--accent);
+    text-transform:uppercase; letter-spacing:.14em; margin-bottom:16px;
+  }
+  .hero h1{
+    font-size:clamp(32px,4vw,50px); line-height:1.05; margin:0 0 18px;
+    font-weight:800; letter-spacing:-.02em;
+  }
+  .hero h1 em{ font-style:normal; color:var(--accent); }
+  .hero p{ color:var(--text-dim); font-size:16px; max-width:46ch; margin:0 0 26px; }
+  .hero .actions{ display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--mono); font-size:13px; font-weight:600;
+    padding:11px 18px; border-radius:var(--radius-sm);
+    border:1px solid var(--border-2); cursor:pointer;
+  }
+  .btn.primary{ background:var(--accent); color:#08181c; border-color:var(--accent); }
+  .btn.ghost{ background:var(--element); color:var(--text); }
+  .btn:hover{ opacity:.9; }
+
+  /* Hero mock window — a small live replica of the library's own widgets */
+  .mock{
+    background:var(--inline); border:1px solid var(--border);
+    border-radius:14px; padding:14px; position:relative;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.6);
+  }
+  .mock::before{
+    content:''; position:absolute; top:14px; left:14px; right:14px; height:1px;
+  }
+  .mock-title{ display:flex; align-items:center; gap:10px; padding:6px 6px 14px; }
+  .mock-title .ic{ width:34px; height:34px; border-radius:8px; background:var(--element); border:1px solid var(--border-2); }
+  .mock-title .t1{ font-weight:700; font-size:13.5px; }
+  .mock-title .t2{ font-size:11.5px; color:var(--text-faint); }
+  .mock-row{
+    background:var(--element); border:1px solid var(--border); border-radius:8px;
+    padding:12px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;
+    font-size:13px;
+  }
+  .mock-row .label{ color:var(--text); }
+  .mock-toggle{
+    width:15px; height:15px; border-radius:4px; border:2px solid var(--border-2);
+    background:var(--element); cursor:pointer; position:relative; flex:none;
+  }
+  .mock-toggle.on{ background:var(--accent); border-color:var(--accent); }
+  .mock-toggle.on::after{
+    content:''; position:absolute; inset:3px; border-radius:2px;
+  }
+  .mock-slider{ display:flex; flex-direction:column; gap:8px; }
+  .mock-slider .bar{ height:5px; background:var(--element); border:1px solid var(--border-2); border-radius:6px; overflow:hidden; }
+  .mock-slider .fill{ height:100%; width:62%; background:linear-gradient(90deg,#7fb8cc,var(--accent)); }
+  .mock-dropdown{ display:flex; align-items:center; justify-content:space-between; }
+  .mock-dropdown .val{
+    font-family:var(--mono); font-size:11.5px; color:var(--text-dim);
+    background:var(--inline); border:1px solid var(--border-2); padding:5px 9px; border-radius:5px;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    max-width:1180px; margin:0 auto; padding:20px 28px 100px;
+    display:grid; grid-template-columns: 240px 1fr; gap:40px;
+    align-items:start;
+  }
+  nav.side{
+    position:sticky; top:76px;
+    background:var(--inline);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:14px;
+    max-height:calc(100vh - 100px);
+    overflow:auto;
+  }
+  nav.side .grp-title{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--text-faint);
+    padding:10px 8px 6px;
+  }
+  nav.side a{
+    display:block; color:var(--text-dim); font-size:13.5px;
+    padding:6px 8px; border-radius:6px; text-decoration:none;
+  }
+  nav.side a:hover{ color:var(--text); background:var(--element); }
+  nav.side a.active{ color:var(--accent); background:var(--accent-dim); }
+
+  main{ min-width:0; }
+
+  section.block{
+    background:var(--inline);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px 30px;
+    margin-bottom:18px;
+  }
+  section.block h2{
+    font-size:22px; margin:0 0 6px; letter-spacing:-.01em;
+    display:flex; align-items:center; gap:10px;
+  }
+  section.block h2 .idx{
+    font-family:var(--mono); font-size:12px; color:var(--text-faint);
+    border:1px solid var(--border-2); padding:2px 7px; border-radius:5px;
+  }
+  section.block > .desc{ color:var(--text-dim); font-size:14.5px; margin-bottom:20px; }
+
+  h3.sub{
+    font-size:15.5px; margin:26px 0 10px; color:var(--text);
+    font-family:var(--mono); font-weight:600;
+  }
+  h3.sub .dot{ color:var(--accent); }
+  h4.fn{
+    font-family:var(--mono); font-size:14px; background:var(--element);
+    border:1px solid var(--border-2); border-radius:6px;
+    padding:9px 12px; margin:18px 0 8px; color:var(--accent);
+    display:inline-block;
+  }
+  p{ margin:8px 0; color:var(--text-dim); font-size:14.5px; }
+  p.tight{margin-top:2px;}
+
+  pre{
+    background:#0b0d0d; border:1px solid var(--border); border-radius:8px;
+    padding:16px 18px; overflow-x:auto; font-family:var(--mono); font-size:13px;
+    line-height:1.65; margin:12px 0;
+  }
+  code.inline{
+    background:var(--element); border:1px solid var(--border);
+    padding:1px 6px; border-radius:4px; font-size:13px; color:var(--accent);
+  }
+  .kw{color:#c586c0}.str{color:#a4e5ff}.com{color:#5c6666}.fn2{color:#dcdcaa}
+
+  table{ width:100%; border-collapse:collapse; margin:12px 0 18px; font-size:13.5px; }
+  th,td{ text-align:left; padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th{ color:var(--text-faint); font-family:var(--mono); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; }
+  td code{ color:var(--accent); }
+
+  ul.tidy{ margin:10px 0; padding-left:20px; }
+  ul.tidy li{ margin:6px 0; color:var(--text-dim); font-size:14.5px; }
+  ul.tidy li code{ color:var(--accent); }
+
+  .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin:14px 0; }
+  .card{
+    background:var(--element); border:1px solid var(--border); border-radius:8px;
+    padding:12px 14px;
+  }
+  .card .t{ font-family:var(--mono); font-size:13px; color:var(--accent); margin-bottom:4px; }
+  .card .d{ font-size:12.5px; color:var(--text-dim); }
+
+  .note{
+    border-left:3px solid var(--accent); background:var(--accent-dim);
+    padding:12px 16px; border-radius:6px; font-size:13.5px; color:var(--text);
+    margin:16px 0;
+  }
+
+  footer{
+    max-width:1180px; margin:0 auto; padding:30px 28px 60px;
+    color:var(--text-faint); font-size:12.5px; font-family:var(--mono);
+    border-top:1px solid var(--border);
+  }
+
+  @media (max-width: 880px){
+    .hero{ grid-template-columns:1fr; }
+    .layout{ grid-template-columns:1fr; }
+    nav.side{ position:static; max-height:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crown">C</div>
+  <div class="name">Crown UI</div>
+  <div class="tag">fork · klarkk</div>
+  <div class="spacer"></div>
+  <div class="kbd">Z — открыть меню</div>
+</div>
+
+<div class="hero">
+  <div>
+    <div class="eyebrow">Документация библиотеки</div>
+    <h1>UI-фреймворк для<br><em>Roblox-скриптов</em> на Lua</h1>
+    <p>Окна, вкладки, секции, тогглы, слайдеры, дропдауны, колорпикеры, кейбинды, конфиги и уведомления — единый API поверх <code class="inline">Instance.new</code>, с автоматической темизацией и анимациями.</p>
+    <div class="actions">
+      <a class="btn primary" href="#library">Начать с Library →</a>
+      <a class="btn ghost" href="#example">Пример кода</a>
+    </div>
+  </div>
+
+  <div class="mock" aria-hidden="true">
+    <div class="mock-title">
+      <div class="ic"></div>
+      <div>
+        <div class="t1">Example</div>
+        <div class="t2">game.PlaceId</div>
+      </div>
+    </div>
+    <div class="mock-row">
+      <span class="label">Aimbot</span>
+      <div class="mock-toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="mock-row mock-slider">
+      <div style="display:flex;justify-content:space-between;width:100%">
+        <span class="label">FOV</span><span class="mono" style="color:var(--text-dim);font-size:12px">100px</span>
+      </div>
+      <div class="bar"><div class="fill"></div></div>
+    </div>
+    <div class="mock-row mock-dropdown">
+      <span class="label">Приоритет цели</span>
+      <span class="val">Closest ▾</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <nav class="side" id="sidenav">
+    <div class="grp-title">Ядро</div>
+    <a href="#library">Library</a>
+    <a href="#tween">Tween</a>
+    <a href="#instances">Instances</a>
+    <div class="grp-title">Структура интерфейса</div>
+    <a href="#window">Window</a>
+    <a href="#page">Page</a>
+    <a href="#subpage">SubPage</a>
+    <a href="#section">Section</a>
+    <div class="grp-title">Элементы</div>
+    <a href="#toggle">Toggle</a>
+    <a href="#button">Button</a>
+    <a href="#slider">Slider</a>
+    <a href="#dropdown">Dropdown</a>
+    <a href="#label">Label</a>
+    <a href="#textbox">Textbox</a>
+    <div class="grp-title">Прочее</div>
+    <a href="#colorpicker">Colorpicker</a>
+    <a href="#keybind">Keybind</a>
+    <a href="#notification">Notification</a>
+    <a href="#configs">Конфиги</a>
+    <a href="#settings">Settings-страница</a>
+    <a href="#example">Пример</a>
+  </nav>
+
+  <main>
+
+    <section class="block" id="library">
+      <h2><span class="idx">01</span> Library — корневой объект</h2>
+      <p class="desc">Точка входа. Загружается через <code class="inline">loadstring</code>, кладёт себя в <code class="inline">getgenv().Library</code> и при повторном запуске выгружает предыдущую версию сама.</p>
+
+      <pre><span class="kw">if</span> getgenv().Library <span class="kw">then</span>
+    getgenv().Library:<span class="fn2">Unload</span>()
+<span class="kw">end</span>
+<span class="kw">local</span> Library = <span class="fn2">loadstring</span>(game:HttpGet(<span class="str">"URL"</span>))()</pre>
+
+      <h3 class="sub"><span class="dot">▸</span> Поля</h3>
+      <table>
+        <tr><th>Поле</th><th>Описание</th></tr>
+        <tr><td><code>Theme</code></td><td>Цвета темы: Background, Inline, Element, Accent, Border, Border 2.</td></tr>
+        <tr><td><code>MenuKeybind</code></td><td>Клавиша открытия/закрытия окна. По умолчанию <code>Enum.KeyCode.Z</code>.</td></tr>
+        <tr><td><code>Flags</code></td><td>Таблица <code>[Flag] = значение</code> — текущее состояние всех элементов.</td></tr>
+        <tr><td><code>SetFlags</code></td><td>Таблица <code>[Flag] = function(value)</code> для программной установки (используется конфигами).</td></tr>
+        <tr><td><code>Tween</code></td><td><code>{Time, Style, Direction}</code> — параметры анимаций по умолчанию.</td></tr>
+        <tr><td><code>FadeSpeed</code></td><td>Скорость fade-анимации всплывающих окон (0.2 сек).</td></tr>
+        <tr><td><code>Folders</code></td><td><code>Directory</code>, <code>Configs</code>, <code>Assets</code> — создаются автоматически.</td></tr>
+        <tr><td><code>OpenFrames</code></td><td>Реестр открытых всплывающих окон (для авто-закрытия остальных).</td></tr>
+      </table>
+
+      <h3 class="sub"><span class="dot">▸</span> Методы</h3>
+
+      <h4 class="fn">Library:Unload()</h4>
+      <p>Отключает все соединения, останавливает все потоки, уничтожает интерфейс и обнуляет <code class="inline">getgenv().Library</code>.</p>
+
+      <h4 class="fn">Library:Round(Number, Float)</h4>
+      <p>Округляет число с заданным шагом: <code class="inline">Library:Round(3.14159, 0.01) → 3.14</code>.</p>
+
+      <h4 class="fn">Library:Thread(Function)</h4>
+      <p>Запускает функцию в отдельной корутине, регистрирует её для закрытия при <code class="inline">Unload</code>.</p>
+
+      <h4 class="fn">Library:SafeCall(Function, ...)</h4>
+      <p><code class="inline">pcall</code>-обёртка: при ошибке пишет <code class="inline">warn</code> и возвращает <code class="inline">false</code>. На неё опираются все колбэки элементов.</p>
+
+      <h4 class="fn">Library:Connect(Event, Callback, Name)</h4>
+      <p>Подписка на событие с сохранением соединения в реестре — для последующего <code class="inline">Disconnect</code> или массовой отписки при <code class="inline">Unload</code>.</p>
+
+      <h4 class="fn">Library:Disconnect(Name)</h4>
+      <p>Отключает соединение по имени.</p>
+
+      <h4 class="fn">Library:NextFlag()</h4>
+      <p>Генерирует уникальный флаг вида <code class="inline">flag_number_N_GUID</code> для элементов без явного <code class="inline">Flag</code>.</p>
+
+      <h4 class="fn">Library:AddToTheme(Item, Properties)</h4>
+      <p>Регистрирует свойства инстанса как «привязанные к теме» — значение либо ключ из <code class="inline">Library.Theme</code>, либо функция.</p>
+
+      <h4 class="fn">Library:ChangeItemTheme(Item, Properties)</h4>
+      <p>Меняет набор темизированных свойств у уже зарегистрированного элемента (например, временная подсветка кнопки).</p>
+
+      <h4 class="fn">Library:ChangeTheme(Theme, Color)</h4>
+      <p>Меняет цвет темы и мгновенно применяет его ко всем элементам, зарегистрированным на этот ключ.</p>
+
+      <h4 class="fn">Library:ToRich(Text, Color)</h4>
+      <p>Оборачивает текст в <code class="inline">&lt;font color="rgb(...)"&gt;</code> на основе <code class="inline">Color3</code>.</p>
+
+      <h4 class="fn">Library:GetConfig() / Library:LoadConfig(Json)</h4>
+      <p>Сериализация/восстановление всех <code class="inline">Flags</code> в JSON. Подробнее — раздел <a href="#configs">Конфиги</a>.</p>
+
+      <h4 class="fn">Library:DeleteConfig(FileName) / Library:RefreshConfigsList(Dropdown)</h4>
+      <p>Удаление файла конфига и обновление списка конфигов в переданном Dropdown-элементе.</p>
+
+      <h4 class="fn">Library:IsMouseOverFrame(Frame) / Library:IsClipped(Object, Column)</h4>
+      <p>Геометрические проверки: находится ли курсор над Frame, выходит ли элемент за границы колонки (используются для авто-закрытия всплывающих окон).</p>
+
+      <h4 class="fn">Library:Lerp(Start, Finish, Time)</h4>
+      <p>Линейная интерполяция.</p>
+
+      <h4 class="fn">Library:CreateColorpicker(Data) / Library:CreateKeybind(Data)</h4>
+      <p>Низкоуровневые конструкторы. На практике вызываются через <code class="inline">Toggle:Colorpicker{}</code>, <code class="inline">Label:Keybind{}</code> и т.п. — см. разделы <a href="#colorpicker">Colorpicker</a> и <a href="#keybind">Keybind</a>.</p>
+
+      <h4 class="fn">Library:Notification(Name, Duration, Icon)</h4>
+      <p>Показывает всплывающее уведомление. См. <a href="#notification">Notification</a>.</p>
+
+      <h4 class="fn">Library:Window(Data)</h4>
+      <p>Создаёт главное окно. См. <a href="#window">Window</a>.</p>
+
+      <h4 class="fn">Library:Category(Name)</h4>
+      <p>Добавляет неинтерактивную текстовую подпись-разделитель в список страниц сайдбара.</p>
+
+      <h4 class="fn">Library:CreateSettingsPage(Window)</h4>
+      <p>Автоматически создаёт готовую страницу настроек (конфиги, темизация, скорость анимаций). См. <a href="#settings">Settings-страница</a>.</p>
+    </section>
+
+    <section class="block" id="tween">
+      <h2><span class="idx">02</span> Tween — модуль анимаций</h2>
+      <p class="desc">Внутренний класс, напрямую не экспортируется — используется через <code class="inline">Instances:Tween(...)</code> на любом созданном элементе.</p>
+      <ul class="tidy">
+        <li><code>Tween:Create(Item, Info, Goal, IsRawItem)</code> — создаёт и запускает <code class="inline">TweenService:Create</code>.</li>
+        <li><code>Tween:GetProperty(Item)</code> — возвращает свойства прозрачности, применимые к типу инстанса.</li>
+        <li><code>Tween:FadeItem(Item, Property, Visibility, Speed)</code> — плавный показ/скрытие свойства.</li>
+        <li><code>Tween:Get() / Tween:Pause() / Tween:Play() / Tween:Clean()</code> — управление созданной анимацией.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="instances">
+      <h2><span class="idx">03</span> Instances — обёртка над Instance.new</h2>
+      <p class="desc">Каждый созданный GUI-объект в библиотеке — таблица <code class="inline">{Instance = &lt;RobloxInstance&gt;}</code> с методами:</p>
+      <div class="card-grid">
+        <div class="card"><div class="t">:Create(Class, Properties)</div><div class="d">создаёт Instance и применяет свойства</div></div>
+        <div class="card"><div class="t">:AddToTheme(Properties)</div><div class="d">привязка к теме</div></div>
+        <div class="card"><div class="t">:Connect(Event, Cb, Name)</div><div class="d">подписка на событие</div></div>
+        <div class="card"><div class="t">:Tween(Info, Goal)</div><div class="d">анимация свойств</div></div>
+        <div class="card"><div class="t">:Clean()</div><div class="d">Destroy()</div></div>
+        <div class="card"><div class="t">:MakeDraggable()</div><div class="d">перетаскивание мышью/тачем</div></div>
+        <div class="card"><div class="t">:MakeResizeable(Min, Max)</div><div class="d">ресайз за правый нижний угол</div></div>
+        <div class="card"><div class="t">:OnHover / :OnHoverLeave</div><div class="d">события наведения курсора</div></div>
+      </div>
+    </section>
+
+    <section class="block" id="window">
+      <h2><span class="idx">04</span> Window</h2>
+      <p class="desc">Создаётся через <code class="inline">Library:Window{...}</code>. Перетаскиваемое и растягиваемое окно, открывается по центру экрана.</p>
+      <table>
+        <tr><th>Поле Data</th><th>По умолч.</th><th>Описание</th></tr>
+        <tr><td><code>Name</code></td><td>"Window"</td><td>Заголовок</td></tr>
+        <tr><td><code>SubTitle</code></td><td>"he"</td><td>Подзаголовок (например, название игры)</td></tr>
+        <tr><td><code>ExpiresIn</code></td><td>"23d"</td><td>Текст в нижнем блоке сайдбара</td></tr>
+        <tr><td><code>Icon</code></td><td>rbxassetid</td><td>Иконка в заголовке</td></tr>
+      </table>
+      <ul class="tidy">
+        <li><code>Window:Page(Data)</code> — создать страницу (вкладку сайдбара).</li>
+        <li><code>Window:SetCenter()</code> — пересчитать позицию после смены anchor (авто-вызов).</li>
+        <li><code>Window:Visible(Bool)</code> — мгновенный показ/скрытие.</li>
+        <li><code>Window:SetOpen(Bool)</code> — плавное открытие/закрытие; вызывается по <code>MenuKeybind</code>.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="page">
+      <h2><span class="idx">05</span> Page</h2>
+      <p class="desc"><code class="inline">Window:Page{ Name = "...", Icon = "rbxassetid" }</code> — вкладка в левом сайдбаре.</p>
+      <ul class="tidy">
+        <li><code>Page:SubPage(Data)</code> — создать под-вкладку.</li>
+        <li><code>Page:Visible(Bool)</code> — показать/скрыть кнопку страницы.</li>
+        <li><code>Page:Turn(Bool)</code> — активировать/деактивировать (первая созданная активна по умолчанию).</li>
+      </ul>
+    </section>
+
+    <section class="block" id="subpage">
+      <h2><span class="idx">06</span> SubPage</h2>
+      <p class="desc"><code class="inline">Page:SubPage{ Name = "...", Columns = 2 }</code> — горизонтальный переключатель вверху контента; задаёт число колонок для секций.</p>
+      <ul class="tidy">
+        <li><code>SubPage:Visible(Bool)</code></li>
+        <li><code>SubPage:Turn(Bool)</code></li>
+        <li><code>SubPage:Section(Data)</code> — создать секцию в одной из колонок.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="section">
+      <h2><span class="idx">07</span> Section</h2>
+      <p class="desc"><code class="inline">SubPage:Section{ Name = "...", Icon = "id", Side = 1 }</code> — блок-карточка, контейнер для элементов управления. <code class="inline">Side</code> — номер колонки.</p>
+      <div class="card-grid">
+        <div class="card"><div class="t">:Toggle(Data)</div><div class="d">чекбокс</div></div>
+        <div class="card"><div class="t">:Button(Data)</div><div class="d">кнопка</div></div>
+        <div class="card"><div class="t">:Slider(Data)</div><div class="d">слайдер</div></div>
+        <div class="card"><div class="t">:Dropdown(Data)</div><div class="d">выпадающий список</div></div>
+        <div class="card"><div class="t">:Label(Name)</div><div class="d">текстовая подпись</div></div>
+        <div class="card"><div class="t">:Textbox(Data)</div><div class="d">поле ввода</div></div>
+      </div>
+      <p><code class="inline">Section:Visible(Bool)</code> — показать/скрыть всю секцию целиком.</p>
+    </section>
+
+    <section class="block" id="toggle">
+      <h2><span class="idx">08</span> Toggle</h2>
+      <pre>Section:<span class="fn2">Toggle</span>({
+    Name = <span class="str">"Aim FOV"</span>,
+    Flag = <span class="str">"AimFov"</span>,
+    Default = <span class="kw">false</span>,
+    Callback = <span class="kw">function</span>(Value) <span class="kw">end</span>
+})</pre>
+      <ul class="tidy">
+        <li><code>Toggle:Get()</code> → <code>true/false</code></li>
+        <li><code>Toggle:Set(Value)</code> — установить + анимация + Callback</li>
+        <li><code>Toggle:SetVisibility(Bool)</code> / <code>:Visible(Bool)</code></li>
+        <li><code>Toggle:Colorpicker(Data)</code> — прикрепить colorpicker справа</li>
+        <li><code>Toggle:Keybind(Data)</code> — прикрепить keybind справа</li>
+      </ul>
+    </section>
+
+    <section class="block" id="button">
+      <h2><span class="idx">09</span> Button</h2>
+      <pre>Section:<span class="fn2">Button</span>({
+    Name = <span class="str">"Reset"</span>,
+    Callback = <span class="kw">function</span>() <span class="kw">end</span>
+})</pre>
+      <ul class="tidy">
+        <li><code>Button:SetVisibility(Bool)</code> / <code>:Visible(Bool)</code></li>
+        <li><code>Button:Press()</code> — программно «нажать»: подсветка акцентом на 0.1с + Callback</li>
+      </ul>
+    </section>
+
+    <section class="block" id="slider">
+      <h2><span class="idx">10</span> Slider</h2>
+      <pre>Section:<span class="fn2">Slider</span>({
+    Name = <span class="str">"Sensitivity"</span>,
+    Min = 0, Max = 100, Default = 50,
+    Decimals = 1, Suffix = <span class="str">"%"</span>,
+    Flag = <span class="str">"Sens"</span>,
+    Callback = <span class="kw">function</span>(Value) <span class="kw">end</span>
+})</pre>
+      <table>
+        <tr><th>Поле</th><th>Описание</th></tr>
+        <tr><td><code>Min / Max</code></td><td>Границы значений</td></tr>
+        <tr><td><code>Decimals</code></td><td>Шаг округления (см. <code>Library:Round</code>)</td></tr>
+        <tr><td><code>Suffix</code></td><td>Текст после числа: <code>"%"</code>, <code>"s"</code> и т.д.</td></tr>
+      </table>
+      <ul class="tidy">
+        <li><code>Slider:Get()</code> / <code>Slider:Set(Value)</code> — с clamp и округлением</li>
+        <li><code>Slider:SetVisibility(Bool)</code> / <code>:Visible(Bool)</code></li>
+      </ul>
+    </section>
+
+    <section class="block" id="dropdown">
+      <h2><span class="idx">11</span> Dropdown</h2>
+      <pre><span class="kw">local</span> Dropdown = Section:<span class="fn2">Dropdown</span>({
+    Name = <span class="str">"Weapon"</span>,
+    Items = {<span class="str">"AK-47"</span>, <span class="str">"M4A1"</span>, <span class="str">"AWP"</span>},
+    Default = <span class="str">"AK-47"</span>,
+    Multi = <span class="kw">false</span>,
+    Flag = <span class="str">"Weapon"</span>,
+    Callback = <span class="kw">function</span>(Value) <span class="kw">end</span>
+})</pre>
+      <ul class="tidy">
+        <li><code>Dropdown:Get()</code> / <code>Dropdown:Set(Option)</code></li>
+        <li><code>Dropdown:Add(Option)</code> / <code>Dropdown:Remove(Option)</code></li>
+        <li><code>Dropdown:Refresh(List)</code> — пересобрать весь список опций</li>
+        <li><code>Dropdown:SetOpen(Bool)</code> — открыть/закрыть программно</li>
+        <li><code>Dropdown:SetVisibility(Bool)</code> / <code>:Visible(Bool)</code></li>
+      </ul>
+      <p><code class="inline">Multi = true</code> — множественный выбор, <code class="inline">Value</code> становится таблицей.</p>
+    </section>
+
+    <section class="block" id="label">
+      <h2><span class="idx">12</span> Label</h2>
+      <pre><span class="kw">local</span> Lbl = Section:<span class="fn2">Label</span>(<span class="str">"Aim Key"</span>)
+Lbl:<span class="fn2">Keybind</span>({ Flag = <span class="str">"AimKey"</span>, Default = Enum.KeyCode.E, Mode = <span class="str">"Hold"</span> })</pre>
+      <ul class="tidy">
+        <li><code>Label:SetText(Text)</code></li>
+        <li><code>Label:SetVisibility(Bool)</code> / <code>:Visible(Bool)</code></li>
+        <li><code>Label:Colorpicker(Data)</code> / <code>Label:Keybind(Data)</code></li>
+      </ul>
+    </section>
+
+    <section class="block" id="textbox">
+      <h2><span class="idx">13</span> Textbox</h2>
+      <pre>Section:<span class="fn2">Textbox</span>({
+    Placeholder = <span class="str">"Введите ник"</span>,
+    Numeric = <span class="kw">false</span>,
+    Finished = <span class="kw">false</span>,
+    Flag = <span class="str">"TargetName"</span>,
+    Callback = <span class="kw">function</span>(Value) <span class="kw">end</span>
+})</pre>
+      <table>
+        <tr><th>Поле</th><th>Описание</th></tr>
+        <tr><td><code>Numeric</code></td><td>Принимать только числовой ввод</td></tr>
+        <tr><td><code>Finished</code></td><td>Callback по Enter/потере фокуса вместо каждого нажатия</td></tr>
+      </table>
+      <ul class="tidy">
+        <li><code>Textbox:Get()</code> / <code>Textbox:Set(Value)</code></li>
+        <li><code>Textbox:SetVisibility(Bool)</code> / <code>:Visible(Bool)</code></li>
+      </ul>
+    </section>
+
+    <section class="block" id="colorpicker">
+      <h2><span class="idx">14</span> Colorpicker</h2>
+      <p class="desc">Создаётся не напрямую, а через <code class="inline">Toggle:Colorpicker{}</code> / <code class="inline">Label:Colorpicker{}</code>.</p>
+      <pre>Section:Toggle({Name = <span class="str">"ESP"</span>, Flag = <span class="str">"ESP"</span>}):<span class="fn2">Colorpicker</span>({
+    Flag = <span class="str">"ESPColor"</span>,
+    Default = Color3.fromRGB(255, 0, 0),
+    Callback = <span class="kw">function</span>(Color, Alpha) <span class="kw">end</span>
+})</pre>
+      <ul class="tidy">
+        <li><code>Colorpicker:Get()</code> → <code>Color3</code></li>
+        <li><code>Colorpicker:Set(Color, Alpha)</code> — принимает <code>Color3</code>, hex-строку или <code>{R,G,B,Alpha}</code></li>
+        <li><code>Colorpicker:SetOpen(Bool)</code> — палитра насыщенность/яркость + полоса оттенка</li>
+        <li><code>Colorpicker:SetVisibility(Bool)</code> / <code>:Visible(Bool)</code></li>
+      </ul>
+    </section>
+
+    <section class="block" id="keybind">
+      <h2><span class="idx">15</span> Keybind</h2>
+      <pre>Section:Toggle({Name = <span class="str">"Aimbot"</span>, Flag = <span class="str">"Aimbot"</span>}):<span class="fn2">Keybind</span>({
+    Flag = <span class="str">"AimbotKey"</span>,
+    Default = Enum.KeyCode.Q,
+    Mode = <span class="str">"Hold"</span>, <span class="com">-- "Toggle" | "Hold" | "Always"</span>
+    Callback = <span class="kw">function</span>(IsActive) <span class="kw">end</span>
+})</pre>
+      <table>
+        <tr><th>Режим</th><th>Поведение</th></tr>
+        <tr><td><code>Toggle</code></td><td>Нажатие переключает вкл/выкл</td></tr>
+        <tr><td><code>Hold</code></td><td>Активно, пока клавиша зажата</td></tr>
+        <tr><td><code>Always</code></td><td>Активно всегда после назначения клавиши</td></tr>
+      </table>
+      <ul class="tidy">
+        <li><code>Keybind:Get()</code> → <code>Key, Mode, Toggled</code></li>
+        <li><code>Keybind:Set(Key)</code> — <code>EnumItem</code>, либо <code>{Key, Mode}</code>, либо строка режима</li>
+        <li><code>Keybind:SetMode(Mode)</code></li>
+        <li><code>Keybind:SetOpen(Bool)</code> — открывается ПКМ, назначение новой клавиши ЛКМ</li>
+      </ul>
+    </section>
+
+    <section class="block" id="notification">
+      <h2><span class="idx">16</span> Notification</h2>
+      <pre>Library:<span class="fn2">Notification</span>(<span class="str">"Загрузка завершена"</span>, 4, <span class="str">"91306356501736"</span>)</pre>
+      <p>Карточка с текстом и опциональной иконкой в верхней области экрана; исчезает сама через <code class="inline">Duration</code> секунд.</p>
+    </section>
+
+    <section class="block" id="configs">
+      <h2><span class="idx">17</span> Конфиги</h2>
+      <ul class="tidy">
+        <li><code>Library:GetConfig()</code> — сериализует все <code>Library.Flags</code> в JSON.</li>
+        <li><code>Library:LoadConfig(Json)</code> — применяет значения через <code>SetFlags</code>.</li>
+        <li><code>Library:DeleteConfig(FileName)</code> — удаляет файл из <code>Folders.Configs</code>.</li>
+        <li><code>Library:RefreshConfigsList(Dropdown)</code> — обновляет список файлов в Dropdown.</li>
+      </ul>
+      <p>Файлы читаются/пишутся через <code class="inline">writefile</code> / <code class="inline">readfile</code> / <code class="inline">delfile</code> в папке <code class="inline">Crown/Configs</code>.</p>
+    </section>
+
+    <section class="block" id="settings">
+      <h2><span class="idx">18</span> Встроенная страница Settings</h2>
+      <pre><span class="kw">local</span> Window = Library:Window({ Name = <span class="str">"My Script"</span> })
+Library:<span class="fn2">CreateSettingsPage</span>(Window)</pre>
+      <div class="card-grid">
+        <div class="card"><div class="t">Configs</div><div class="d">Dropdown списка конфигов + Create / Delete / Load / Save / Refresh</div></div>
+        <div class="card"><div class="t">Theming</div><div class="d">Colorpicker на каждый цвет из Library.Theme</div></div>
+        <div class="card"><div class="t">Settings</div><div class="d">Unload, MenuKeybind, скорость/стиль/направление твинов</div></div>
+      </div>
+    </section>
+
+    <section class="block" id="example">
+      <h2><span class="idx">19</span> Полный пример</h2>
+      <pre><span class="kw">local</span> Library = <span class="fn2">loadstring</span>(game:HttpGet(
+    <span class="str">"https://raw.githubusercontent.com/.../source.lua"</span>
+))()
+
+<span class="kw">local</span> Window = Library:<span class="fn2">Window</span>({
+    Name = <span class="str">"Example"</span>, SubTitle = <span class="str">"game.PlaceId"</span>,
+    ExpiresIn = <span class="str">"lifetime"</span>, Icon = <span class="str">"8508980536"</span>
+})
+
+<span class="kw">local</span> MainPage = Window:<span class="fn2">Page</span>({ Name = <span class="str">"Main"</span>, Icon = <span class="str">"136879043989014"</span> })
+<span class="kw">local</span> MainSub  = MainPage:<span class="fn2">SubPage</span>({ Name = <span class="str">"General"</span>, Columns = 2 })
+<span class="kw">local</span> Combat   = MainSub:<span class="fn2">Section</span>({ Name = <span class="str">"Combat"</span>, Side = 1 })
+
+Combat:<span class="fn2">Toggle</span>({
+    Name = <span class="str">"Aimbot"</span>, Flag = <span class="str">"Aimbot"</span>, Default = <span class="kw">false</span>
+}):<span class="fn2">Keybind</span>({ Flag = <span class="str">"AimbotKey"</span>, Default = Enum.KeyCode.Q, Mode = <span class="str">"Hold"</span> })
+
+Combat:<span class="fn2">Slider</span>({ Name = <span class="str">"FOV"</span>, Min = 10, Max = 500, Default = 100, Flag = <span class="str">"AimFov"</span> })
+
+Library:<span class="fn2">CreateSettingsPage</span>(Window)
+Library:<span class="fn2">Notification</span>(<span class="str">"Скрипт загружен!"</span>, 3)</pre>
+
+      <div class="note">
+        Флаги (<code class="inline">Flag</code>) должны быть уникальны в пределах окна — по ним хранится значение в <code class="inline">Library.Flags</code> и сохраняется/загружается конфиг. Меню открывается клавишей <code class="inline">Z</code> по умолчанию.
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  Crown UI · документация сгенерирована по исходному коду библиотеки
+</footer>
+
+<script>
+  // active-link highlighting
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...document.querySelectorAll('section.block')];
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        links.forEach(l=>l.classList.remove('active'));
+        const l = document.querySelector('nav.side a[href="#'+e.target.id+'"]');
+        if(l) l.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s=>io.observe(s));
+</script>
+
+</body>
+</html>
