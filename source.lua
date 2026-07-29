@@ -1,8 +1,13 @@
 -- made by paladin (vcred64 on discord)
 -- fork by klarkk ( t.me/goveci )
 -- ===========================================
---		UPD 3
---  fixed sections problem
+--  UPD 4 : Section() now works both
+--  on a Page (no SubPage created) and on a SubPage
+--  (with Side/columns). Previously calling :Section()
+--  directly on a Page crashed with
+--  "attempt to index nil with number" because Page
+--  objects never have a ColumnsData table (only
+--  SubPage objects do).
 -- ============================================
 
 if getgenv().Library then
@@ -2559,7 +2564,35 @@ local Library do
 		        Items = { }
 		    }
 		
-		    local ColumnInstance = self.ColumnsData[Section.Side].Instance
+		    -- FIX: `self.ColumnsData` only exists on SubPage objects (created via
+		    -- Page:SubPage()). A plain Page (created via Window:Page()) never has
+		    -- ColumnsData, only a single Items["Columns"] frame. Calling :Section()
+		    -- directly on a Page used to crash with
+		    -- "attempt to index nil with number" because `self.ColumnsData[Section.Side]`
+		    -- indexed a nil table. We now support both cases.
+		    local ColumnInstance
+		
+		    if self.ColumnsData then
+		        -- We're a SubPage: use the requested Side column, falling back to
+		        -- column 1 if the given Side doesn't exist (e.g. Side = 2 on a
+		        -- SubPage created with Columns = 1).
+		        local ColumnObject = self.ColumnsData[Section.Side] or self.ColumnsData[1]
+		
+		        if not ColumnObject then
+		            warn(StringFormat("[Library] Section \"%s\": SubPage \"%s\" has no columns to attach to.", tostring(Section.Name), tostring(self.Name)))
+		            return
+		        end
+		
+		        ColumnInstance = ColumnObject.Instance
+		    elseif self.Items and self.Items["Columns"] then
+		        -- We're a plain Page (no SubPage was ever created for it): fall
+		        -- back to using the Page's own Columns frame as a single column,
+		        -- ignoring Side.
+		        ColumnInstance = self.Items["Columns"].Instance
+		    else
+		        warn(StringFormat("[Library] Section \"%s\": could not find a valid parent (expected a Page or SubPage).", tostring(Section.Name)))
+		        return
+		    end
 		
 		    -- Проверяем, есть ли уже UIListLayout в колонке. Если нет — создаём.
 		    if not ColumnInstance:FindFirstChildOfClass("UIListLayout") then
