@@ -1,8 +1,8 @@
 -- made by paladin (vcred64 on discord)
 -- fork by klarkk ( t.me/goveci )
 -- ===========================================
---					UPD 2
---  added visible function for all elements
+--		UPD 3
+--  fixed sections problem
 -- ============================================
 
 if getgenv().Library then
@@ -2559,7 +2559,7 @@ local Library do
 		        Items = { }
 		    }
 		
-		    local ColumnInstance = Section.Page.ColumnsData[Section.Side].Instance
+		    local ColumnInstance = self.ColumnsData[Section.Side].Instance
 		
 		    -- Проверяем, есть ли уже UIListLayout в колонке. Если нет — создаём.
 		    if not ColumnInstance:FindFirstChildOfClass("UIListLayout") then
