@@ -1,13 +1,8 @@
 -- made by paladin (vcred64 on discord)
 -- fork by klarkk ( t.me/goveci )
 -- ===========================================
---  UPD 4 : Section() now works both
---  on a Page (no SubPage created) and on a SubPage
---  (with Side/columns). Previously calling :Section()
---  directly on a Page crashed with
---  "attempt to index nil with number" because Page
---  objects never have a ColumnsData table (only
---  SubPage objects do).
+--  UPD 5 : Dropdown good💋
+--  Added search to dropdown
 -- ============================================
 
 if getgenv().Library then
@@ -3359,6 +3354,295 @@ local Library do
                     Name = "\0",
                     PaddingBottom = UDimNew(0, 4)
                 })                
+            end        Library.Sections.Dropdown = function(self, Data)
+            Data = Data or { }
+
+            local TextService = game:GetService("TextService")
+
+            local StringLower = string.lower
+            local MathMin = math.min
+            local MathMax = math.max
+
+            local OptionHeight = 24
+            local OptionGap = 2
+            local SearchHeight = 24
+            local Pad = 6
+
+            local SearchEnabled = true
+            if Data.Search ~= nil then
+                SearchEnabled = Data.Search and true or false
+            elseif Data.search ~= nil then
+                SearchEnabled = Data.search and true or false
+            end
+
+            local Dropdown = {
+                Window = self.Window,
+                Page = self.Page,
+                Section = self,
+
+                Name = Data.Name or Data.name or "Dropdown",
+                Flag = Data.Flag or Data.flag or Library:NextFlag(),
+                Items = Data.Items or Data.items or { },
+                Default = Data.Default or Data.default or "",
+                Callback = Data.Callback or Data.callback or function() end,
+                Multi = Data.Multi or Data.multi or false,
+                MaxVisible = Data.MaxVisible or Data.maxvisible or 5,
+
+                Value = nil,
+                Options = { },
+                Order = { },
+                PopupWidth = 110,
+                IsOpen = false
+            }
+
+            Dropdown.Value = Dropdown.Multi and { } or nil
+
+            local Items = { } do
+                Items["Dropdown"] = Instances:Create("Frame", {
+                    Parent = Dropdown.Section.Items["Content"].Instance,
+                    Name = "\0",
+                    BackgroundTransparency = 1,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Size = UDim2New(1, 0, 0, 25),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Items["Text"] = Instances:Create("TextLabel", {
+                    Parent = Items["Dropdown"].Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    TextColor3 = FromRGB(255, 255, 255),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = Dropdown.Name,
+                    AnchorPoint = Vector2New(0, 0.5),
+                    Size = UDim2New(0, 0, 0, 15),
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(0, 0, 0.5, 0),
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.X,
+                    TextSize = 14,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Items["RealDropdown"] = Instances:Create("TextButton", {
+                    Parent = Items["Dropdown"].Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    TextColor3 = FromRGB(0, 0, 0),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = "",
+                    AutoButtonColor = false,
+                    AnchorPoint = Vector2New(1, 0.5),
+                    Position = UDim2New(1, 0, 0.5, 0),
+                    Size = UDim2New(0, 110, 0, 25),
+                    BorderSizePixel = 0,
+                    TextSize = 14,
+                    BackgroundColor3 = FromRGB(30, 34, 34)
+                })  Items["RealDropdown"]:AddToTheme({BackgroundColor3 = "Element"})
+
+                Instances:Create("UICorner", {
+                    Parent = Items["RealDropdown"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 4)
+                })
+
+                Items["Value"] = Instances:Create("TextLabel", {
+                    Parent = Items["RealDropdown"].Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    TextColor3 = FromRGB(100, 100, 100),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = "...",
+                    AnchorPoint = Vector2New(0, 0.5),
+                    Size = UDim2New(1, -28, 0, 15),
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(0, 8, 0.5, 0),
+                    BorderSizePixel = 0,
+                    TextSize = 12,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextTruncate = Enum.TextTruncate.AtEnd,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Items["Icon"] = Instances:Create("ImageLabel", {
+                    Parent = Items["RealDropdown"].Instance,
+                    Name = "\0",
+                    ImageColor3 = FromRGB(100, 100, 100),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    AnchorPoint = Vector2New(1, 0.5),
+                    Image = "rbxassetid://135448248851234",
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(1, -5, 0.5, 0),
+                    Size = UDim2New(0, 16, 0, 16),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                -- Popup (CanvasGroup => плавный fade всего окна одним твином)
+                Items["OptionHolder"] = Instances:Create("CanvasGroup", {
+                    Parent = Library.UnusedHolder.Instance,
+                    Name = "\0",
+                    Visible = false,
+                    GroupTransparency = 1,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    AnchorPoint = Vector2New(0, 0),
+                    Position = UDim2New(0, 0, 0, 0),
+                    Size = UDim2New(0, 110, 0, 100),
+                    BorderSizePixel = 0,
+                    ZIndex = 50,
+                    BackgroundColor3 = FromRGB(16, 18, 18)
+                })  Items["OptionHolder"]:AddToTheme({BackgroundColor3 = "Background"})
+
+                Instances:Create("UICorner", {
+                    Parent = Items["OptionHolder"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 7)
+                })
+
+                Instances:Create("UIStroke", {
+                    Parent = Items["OptionHolder"].Instance,
+                    Name = "\0",
+                    Color = FromRGB(56, 62, 62),
+                    Thickness = 1.5,
+                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                }):AddToTheme({Color = "Border 2"})
+
+                if SearchEnabled then
+                    Items["Search"] = Instances:Create("TextBox", {
+                        Parent = Items["OptionHolder"].Instance,
+                        Name = "\0",
+                        FontFace = Library.Font,
+                        Text = "",
+                        PlaceholderText = "Search...",
+                        PlaceholderColor3 = FromRGB(100, 100, 100),
+                        TextColor3 = FromRGB(255, 255, 255),
+                        TextSize = 13,
+                        ClearTextOnFocus = false,
+                        ClipsDescendants = true,
+                        TextXAlignment = Enum.TextXAlignment.Left,
+                        BorderColor3 = FromRGB(0, 0, 0),
+                        BorderSizePixel = 0,
+                        Position = UDim2New(0, Pad, 0, Pad),
+                        Size = UDim2New(1, -Pad * 2, 0, SearchHeight),
+                        ZIndex = 51,
+                        BackgroundColor3 = FromRGB(30, 34, 34)
+                    })  Items["Search"]:AddToTheme({BackgroundColor3 = "Element"})
+
+                    Instances:Create("UICorner", {
+                        Parent = Items["Search"].Instance,
+                        Name = "\0",
+                        CornerRadius = UDimNew(0, 4)
+                    })
+
+                    Instances:Create("UIPadding", {
+                        Parent = Items["Search"].Instance,
+                        Name = "\0",
+                        PaddingLeft = UDimNew(0, 8),
+                        PaddingRight = UDimNew(0, 8)
+                    })
+                end
+
+                Items["Holder"] = Instances:Create("ScrollingFrame", {
+                    Parent = Items["OptionHolder"].Instance,
+                    Name = "\0",
+                    Active = true,
+                    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+                    CanvasSize = UDim2New(0, 0, 0, 0),
+                    ScrollBarThickness = 3,
+                    ScrollingDirection = Enum.ScrollingDirection.Y,
+                    BorderSizePixel = 0,
+                    BackgroundTransparency = 1,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Position = UDim2New(0, Pad, 0, SearchEnabled and (Pad + SearchHeight + 4) or Pad),
+                    Size = UDim2New(1, -Pad * 2, 0, OptionHeight),
+                    ZIndex = 51,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })  Items["Holder"]:AddToTheme({ScrollBarImageColor3 = "Accent"})
+
+                Instances:Create("UIListLayout", {
+                    Parent = Items["Holder"].Instance,
+                    Name = "\0",
+                    Padding = UDimNew(0, OptionGap),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                Items["HolderPadding"] = Instances:Create("UIPadding", {
+                    Parent = Items["Holder"].Instance,
+                    Name = "\0",
+                    PaddingRight = UDimNew(0, 0)
+                })
+
+                Items["Empty"] = Instances:Create("TextLabel", {
+                    Parent = Items["OptionHolder"].Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    Text = "No results",
+                    TextColor3 = FromRGB(100, 100, 100),
+                    TextSize = 13,
+                    Visible = false,
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Position = UDim2New(0, Pad, 0, SearchEnabled and (Pad + SearchHeight + 4) or Pad),
+                    Size = UDim2New(1, -Pad * 2, 0, OptionHeight),
+                    ZIndex = 51,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+            end
+
+            local function MeasureText(Text, Size)
+                Text = tostring(Text)
+
+                local Ok, Result = pcall(function()
+                    local Params = InstanceNew("GetTextBoundsParams")
+                    Params.Text = Text
+                    Params.Font = Library.Font
+                    Params.Size = Size
+                    Params.Width = 10000
+
+                    return TextService:GetTextBoundsAsync(Params).X
+                end)
+
+                if Ok and type(Result) == "number" then
+                    return Result
+                end
+
+                return StringLen(Text) * (Size * 0.55)
+            end
+
+            local function UpdateDisplay()
+                local Text = "..."
+
+                if Dropdown.Multi then
+                    if #Dropdown.Value > 0 then
+                        Text = TableConcat(Dropdown.Value, ", ")
+                    end
+                elseif Dropdown.Value ~= nil and Dropdown.Value ~= "" then
+                    Text = tostring(Dropdown.Value)
+                end
+
+                Items["Value"].Instance.Text = Text
+                Items["Value"].Instance.TextColor3 = Text == "..." and FromRGB(100, 100, 100) or FromRGB(200, 200, 200)
+            end
+
+            local function Sync(NoCallback)
+                for Name, OptionData in Dropdown.Options do
+                    if Dropdown.Multi then
+                        OptionData.Selected = TableFind(Dropdown.Value, Name) ~= nil
+                    else
+                        OptionData.Selected = Dropdown.Value == Name
+                    end
+
+                    OptionData:Toggle()
+                end
+
+                Library.Flags[Dropdown.Flag] = Dropdown.Value
+                UpdateDisplay()
+
+                if not NoCallback and Dropdown.Callback then
+                    Library:SafeCall(Dropdown.Callback, Dropdown.Value)
+                end
             end
 
             function Dropdown:Get()
@@ -3373,128 +3657,240 @@ local Library do
                 Dropdown:SetVisibility(Bool)
             end
 
-            local Debounce = false
+            -- Ширина кнопки/списка по самому длинному варианту
+            function Dropdown:UpdateWidth()
+                local MaxText = 0
+
+                for _, Name in Dropdown.Order do
+                    local OptionData = Dropdown.Options[Name]
+
+                    if OptionData then
+                        MaxText = MathMax(MaxText, OptionData.Width)
+                    end
+                end
+
+                local ButtonWidth = MathClamp(MaxText + 36, 100, 170)
+
+                Dropdown.PopupWidth = MathClamp(MathMax(ButtonWidth, MaxText + 40), 100, 360)
+                Items["RealDropdown"].Instance.Size = UDim2New(0, ButtonWidth, 0, 25)
+
+                if Dropdown.IsOpen then
+                    Dropdown:UpdateLayout()
+                end
+            end
+
+            -- Фильтр поиска + высота списка (максимум MaxVisible строк, дальше скролл)
+            function Dropdown:UpdateLayout()
+                local Query = ""
+
+                if Items["Search"] then
+                    Query = StringLower(Items["Search"].Instance.Text)
+                end
+
+                local Count = 0
+
+                for _, Name in Dropdown.Order do
+                    local OptionData = Dropdown.Options[Name]
+
+                    if OptionData then
+                        local Match = true
+
+                        if Query ~= "" then
+                            Match = StringFind(StringLower(Name), Query, 1, true) ~= nil
+                        end
+
+                        OptionData.Button.Instance.Visible = Match
+
+                        if Match then
+                            Count += 1
+                        end
+                    end
+                end
+
+                local Rows = MathMin(Count, Dropdown.MaxVisible)
+                local ListHeight = Rows > 0 and (Rows * OptionHeight + (Rows - 1) * OptionGap) or OptionHeight
+                local TopOffset = SearchEnabled and (Pad + SearchHeight + 4) or Pad
+
+                Items["Empty"].Instance.Visible = Count == 0
+                Items["Holder"].Instance.Visible = Count > 0
+
+                Items["HolderPadding"].Instance.PaddingRight = UDimNew(0, Count > Dropdown.MaxVisible and 6 or 0)
+                Items["Holder"].Instance.ScrollBarThickness = Count > Dropdown.MaxVisible and 3 or 0
+
+                Items["Holder"].Instance.Position = UDim2New(0, Pad, 0, TopOffset)
+                Items["Holder"].Instance.Size = UDim2New(1, -Pad * 2, 0, ListHeight)
+                Items["Empty"].Instance.Position = UDim2New(0, Pad, 0, TopOffset)
+
+                Items["OptionHolder"].Instance.Size = UDim2New(0, Dropdown.PopupWidth, 0, TopOffset + ListHeight + Pad)
+            end
+
+            local function UpdatePosition()
+                local Button = Items["RealDropdown"].Instance
+                local Popup = Items["OptionHolder"].Instance
+
+                local Origin = Library.NotifHolder.Instance.AbsolutePosition
+                local ScreenBottom = Library.Holder.Instance.AbsoluteSize.Y + Origin.Y
+
+                local ButtonPos = Button.AbsolutePosition
+                local ButtonSize = Button.AbsoluteSize
+
+                local PopupWidth = Popup.Size.X.Offset
+                local PopupHeight = Popup.Size.Y.Offset
+
+                local X = MathMax(ButtonPos.X + ButtonSize.X - PopupWidth, Origin.X + 4)
+                local Y = ButtonPos.Y + ButtonSize.Y + 4
+
+                if Y + PopupHeight > ScreenBottom - 4 then
+                    Y = ButtonPos.Y - PopupHeight - 4
+                end
+
+                Popup.Position = UDim2New(0, X - Origin.X, 0, Y - Origin.Y)
+            end
+
             local RenderStepped
+            local CloseToken = 0
+            local HoverPopup = false
+            local HoverButton = false
 
             function Dropdown:SetOpen(Bool)
-                if Debounce then 
+                Bool = Bool and true or false
+
+                if Bool == Dropdown.IsOpen then
                     return
                 end
 
                 Dropdown.IsOpen = Bool
 
-                Debounce = true 
+                CloseToken += 1
+                local Token = CloseToken
 
-                if Dropdown.IsOpen then 
-                    Items["OptionHolder"].Instance.Visible = true
-                    Items["OptionHolder"].Instance.Parent = Library.Holder.Instance
-                    
-                    RenderStepped = RunService.RenderStepped:Connect(function()
-                        Items["OptionHolder"].Instance.Position = UDim2New(0, Items["RealDropdown"].Instance.AbsolutePosition.X, 0, Items["RealDropdown"].Instance.AbsolutePosition.Y - 25)
-                        Items["OptionHolder"].Instance.Size = UDim2New(0, Items["RealDropdown"].Instance.AbsoluteSize.X, 0, 0)
-                    end)
+                local Popup = Items["OptionHolder"]
 
-                    for Index, Value in Library.OpenFrames do 
-                        if Value ~= Dropdown and not Dropdown.Section.IsSettings then 
+                if Bool then
+                    for Index, Value in Library.OpenFrames do
+                        if Value ~= Dropdown and not Dropdown.Section.IsSettings then
                             Value:SetOpen(false)
                         end
                     end
 
-                    Library.OpenFrames[Dropdown] = Dropdown 
+                    Library.OpenFrames[Dropdown] = Dropdown
+
+                    Popup.Instance.Parent = Library.Holder.Instance
+                    Popup.Instance.Visible = true
+
+                    Dropdown:UpdateLayout()
+                    UpdatePosition()
+
+                    if RenderStepped then
+                        RenderStepped:Disconnect()
+                    end
+
+                    RenderStepped = RunService.RenderStepped:Connect(function()
+                        local Button = Items["RealDropdown"].Instance
+                        local WindowClosed = Dropdown.Window and Dropdown.Window.IsOpen == false
+
+                        if WindowClosed or not Button:IsDescendantOf(Library.Holder.Instance) then
+                            Dropdown:SetOpen(false)
+                            return
+                        end
+
+                        UpdatePosition()
+                    end)
+
+                    Popup:Tween(TweenInfo.new(Library.FadeSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {GroupTransparency = 0})
+                    Items["Icon"]:Tween(TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 180})
                 else
-                    if Library.OpenFrames[Dropdown] then 
+                    if Library.OpenFrames[Dropdown] then
                         Library.OpenFrames[Dropdown] = nil
                     end
 
-                    if RenderStepped then 
+                    if RenderStepped then
                         RenderStepped:Disconnect()
                         RenderStepped = nil
                     end
-                end
 
-                local Descendants = Items["OptionHolder"].Instance:GetDescendants()
-                TableInsert(Descendants, Items["OptionHolder"].Instance)
+                    HoverPopup = false
 
-                local NewTween
+                    Popup:Tween(TweenInfo.new(Library.FadeSpeed, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {GroupTransparency = 1})
+                    Items["Icon"]:Tween(TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = 0})
 
-                for Index, Value in Descendants do 
-                    local TransparencyProperty = Tween:GetProperty(Value)
-
-                    if not TransparencyProperty then
-                        continue 
-                    end
-
-                    if not Value.ClassName:find("UI") then 
-                        Value.ZIndex = Dropdown.IsOpen and 3 or 1
-                    end
-
-                    if type(TransparencyProperty) == "table" then 
-                        for _, Property in TransparencyProperty do 
-                            NewTween = Tween:FadeItem(Value, Property, Bool, Library.FadeSpeed)
+                    task.delay(Library.FadeSpeed + 0.02, function()
+                        if Token ~= CloseToken or Dropdown.IsOpen then
+                            return
                         end
-                    else
-                        NewTween = Tween:FadeItem(Value, TransparencyProperty, Bool, Library.FadeSpeed)
-                    end
+
+                        Popup.Instance.Visible = false
+                        Popup.Instance.Parent = Library.UnusedHolder.Instance
+
+                        if Items["Search"] then
+                            Items["Search"].Instance.Text = ""
+                        end
+                    end)
                 end
-                
-                NewTween.Tween.Completed:Connect(function()
-                    Debounce = false 
-                    Items["OptionHolder"].Instance.Visible = Dropdown.IsOpen
-                    task.wait(0.2)
-                    Items["OptionHolder"].Instance.Parent = not Dropdown.IsOpen and Library.UnusedHolder.Instance or Library.Holder.Instance
-                end)
             end
 
             function Dropdown:Set(Option)
-                if Dropdown.Multi then 
-                    if type(Option) ~= "table" then 
+                if Dropdown.Multi then
+                    if type(Option) == "string" then
+                        Option = { Option }
+                    end
+
+                    if type(Option) ~= "table" then
                         return
                     end
 
-                    Dropdown.Value = Option
-                    Library.Flags[Dropdown.Flag] = Option
+                    local New = { }
 
-                    for Index, Value in Option do
-                        local OptionData = Dropdown.Options[Value]
-                         
-                        if not OptionData then
-                            continue
+                    for _, Name in Option do
+                        Name = tostring(Name)
+
+                        if Dropdown.Options[Name] and not TableFind(New, Name) then
+                            TableInsert(New, Name)
                         end
-
-                        OptionData.Selected = true 
-                        OptionData:Toggle("Active")
                     end
 
-                    Items["Value"].Instance.Text = TableConcat(Option, ", ")
+                    Dropdown.Value = New
                 else
+                    Option = tostring(Option)
+
                     if not Dropdown.Options[Option] then
                         return
                     end
 
-                    local OptionData = Dropdown.Options[Option]
-
                     Dropdown.Value = Option
-                    Library.Flags[Dropdown.Flag] = Option
-
-                    for Index, Value in Dropdown.Options do
-                        if Value ~= OptionData then
-                            Value.Selected = false 
-                            Value:Toggle("Inactive")
-                        else
-                            Value.Selected = true 
-                            Value:Toggle("Active")
-                        end
-                    end
-
-                    Items["Value"].Instance.Text = Option
                 end
 
-                if Dropdown.Callback then   
-                    Library:SafeCall(Dropdown.Callback, Dropdown.Value)
+                Sync()
+            end
+
+            -- Клик пользователя по варианту
+            function Dropdown:Select(Name)
+                if Dropdown.Multi then
+                    local New = TableClone(Dropdown.Value)
+                    local Index = TableFind(New, Name)
+
+                    if Index then
+                        TableRemove(New, Index)
+                    else
+                        TableInsert(New, Name)
+                    end
+
+                    Dropdown.Value = New
+                    Sync()
+                else
+                    Dropdown.Value = Name
+                    Sync()
+                    Dropdown:SetOpen(false)
                 end
             end
 
             function Dropdown:Add(Option)
+                Option = tostring(Option)
+
+                if Dropdown.Options[Option] then
+                    return Dropdown.Options[Option]
+                end
+
                 local OptionButton = Instances:Create("TextButton", {
                     Parent = Items["Holder"].Instance,
                     Name = "\0",
@@ -3504,113 +3900,169 @@ local Library do
                     Text = Option,
                     AutoButtonColor = false,
                     BackgroundTransparency = 1,
-                    Size = UDim2New(1, 0, 0, 25),
+                    Size = UDim2New(1, 0, 0, OptionHeight),
                     BorderSizePixel = 0,
-                    AutomaticSize = Enum.AutomaticSize.X,
-                    TextSize = 14,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextTruncate = Enum.TextTruncate.AtEnd,
+                    LayoutOrder = #Dropdown.Order + 1,
+                    ZIndex = 51,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  OptionButton:AddToTheme({BackgroundColor3 = "Accent"})
+
+                Instances:Create("UICorner", {
+                    Parent = OptionButton.Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 4)
+                })
+
+                Instances:Create("UIPadding", {
+                    Parent = OptionButton.Instance,
+                    Name = "\0",
+                    PaddingLeft = UDimNew(0, 8),
+                    PaddingRight = UDimNew(0, 8)
+                })
 
                 local OptionData = {
                     Button = OptionButton,
                     Name = Option,
-                    Selected = false
+                    Selected = false,
+                    Hovered = false,
+                    Width = MeasureText(Option, 13)
                 }
-                
-                function OptionData:Toggle(Value)
-                    if Value == "Active" then
+
+                function OptionData:Toggle()
+                    if OptionData.Selected then
                         OptionData.Button:Tween(nil, {BackgroundTransparency = 0, TextColor3 = FromRGB(0, 0, 0)})
                     else
-                        OptionData.Button:Tween(nil, {BackgroundTransparency = 1, TextColor3 = FromRGB(100, 100, 100)})
+                        OptionData.Button:Tween(nil, {
+                            BackgroundTransparency = 1,
+                            TextColor3 = OptionData.Hovered and FromRGB(255, 255, 255) or FromRGB(100, 100, 100)
+                        })
                     end
                 end
 
-                function OptionData:Set()
-                    OptionData.Selected = not OptionData.Selected
-
-                    if Dropdown.Multi then 
-                        local Index = TableFind(Dropdown.Value, OptionData.Name)
-
-                        if Index then 
-                            TableRemove(Dropdown.Value, Index)
-                        else
-                            TableInsert(Dropdown.Value, OptionData.Name)
-                        end
-
-                        OptionData:Toggle(Index and "Inactive" or "Active")
-
-                        Library.Flags[Dropdown.Flag] = Dropdown.Value
-
-                        local TextFormat = #Dropdown.Value > 0 and TableConcat(Dropdown.Value, ", ") or "..."
-                        Items["Value"].Instance.Text = TextFormat
-                    else
-                        if OptionData.Selected then 
-                            Dropdown.Value = OptionData.Name
-                            Library.Flags[Dropdown.Flag] = OptionData.Name
-
-                            OptionData.Selected = true
-                            OptionData:Toggle("Active")
-
-                            for Index, Value in Dropdown.Options do 
-                                if Value ~= OptionData then
-                                    Value.Selected = false 
-                                    Value:Toggle("Inactive")
-                                end
-                            end
-
-                            Items["Value"].Instance.Text = OptionData.Name
-                        else
-                            Dropdown.Value = nil
-                            Library.Flags[Dropdown.Flag] = nil
-
-                            OptionData.Selected = false
-                            OptionData:Toggle("Inactive")
-
-                            Items["Value"].Instance.Text = "..."
-                        end
-                    end
-
-                    if Dropdown.Callback then
-                        Library:SafeCall(Dropdown.Callback, Dropdown.Value)
-                    end
-                end
-
-                OptionData.Button:Connect("MouseButton1Down", function()
-                    OptionData:Set()
+                OptionData.Button:Connect("MouseEnter", function()
+                    OptionData.Hovered = true
+                    OptionData:Toggle()
                 end)
 
-                Dropdown.Options[OptionData.Name] = OptionData
+                OptionData.Button:Connect("MouseLeave", function()
+                    OptionData.Hovered = false
+                    OptionData:Toggle()
+                end)
+
+                OptionData.Button:Connect("MouseButton1Down", function()
+                    Dropdown:Select(OptionData.Name)
+                end)
+
+                Dropdown.Options[Option] = OptionData
+                TableInsert(Dropdown.Order, Option)
+
+                Dropdown:UpdateWidth()
+
+                if Dropdown.IsOpen then
+                    Dropdown:UpdateLayout()
+                end
+
                 return OptionData
             end
 
-            function Dropdown:Remove(Option)
-                if Dropdown.Options[Option] then
-                    Dropdown.Options[Option].Button:Clean()
-                    Dropdown.Options[Option] = nil
+            function Dropdown:Remove(Option, Silent)
+                Option = tostring(Option)
+
+                local OptionData = Dropdown.Options[Option]
+
+                if not OptionData then
+                    return
+                end
+
+                OptionData.Button:Clean()
+                Dropdown.Options[Option] = nil
+
+                local OrderIndex = TableFind(Dropdown.Order, Option)
+
+                if OrderIndex then
+                    TableRemove(Dropdown.Order, OrderIndex)
+                end
+
+                if not Silent then
+                    if Dropdown.Multi then
+                        local ValueIndex = TableFind(Dropdown.Value, Option)
+
+                        if ValueIndex then
+                            TableRemove(Dropdown.Value, ValueIndex)
+                        end
+                    elseif Dropdown.Value == Option then
+                        Dropdown.Value = nil
+                    end
+
+                    Dropdown:UpdateWidth()
+                    Sync(true)
                 end
             end
 
             function Dropdown:Refresh(List)
-                for Index, Value in Dropdown.Options do 
-                    Dropdown:Remove(Value.Name)
+                local OldOrder = TableClone(Dropdown.Order)
+
+                for _, Name in OldOrder do
+                    Dropdown:Remove(Name, true)
                 end
 
-                for Index, Value in List do 
+                for _, Value in List do
                     Dropdown:Add(Value)
                 end
+
+                -- оставляем выбранное значение, только если оно ещё есть в списке
+                if Dropdown.Multi then
+                    local New = { }
+
+                    for _, Name in Dropdown.Value do
+                        if Dropdown.Options[Name] then
+                            TableInsert(New, Name)
+                        end
+                    end
+
+                    Dropdown.Value = New
+                elseif Dropdown.Value ~= nil and not Dropdown.Options[Dropdown.Value] then
+                    Dropdown.Value = nil
+                end
+
+                Dropdown:UpdateWidth()
+                Sync(true)
             end
 
+            -- Events
             Items["RealDropdown"]:Connect("MouseButton1Down", function()
                 Dropdown:SetOpen(not Dropdown.IsOpen)
             end)
 
+            Items["RealDropdown"]:Connect("MouseEnter", function()
+                HoverButton = true
+            end)
+
+            Items["RealDropdown"]:Connect("MouseLeave", function()
+                HoverButton = false
+            end)
+
+            Items["OptionHolder"]:Connect("MouseEnter", function()
+                HoverPopup = true
+            end)
+
+            Items["OptionHolder"]:Connect("MouseLeave", function()
+                HoverPopup = false
+            end)
+
+            if Items["Search"] then
+                Items["Search"].Instance:GetPropertyChangedSignal("Text"):Connect(function()
+                    Items["Holder"].Instance.CanvasPosition = Vector2New(0, 0)
+                    Dropdown:UpdateLayout()
+                end)
+            end
+
             Library:Connect(UserInputService.InputBegan, function(Input)
                 if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                    if Dropdown.IsOpen then
-                        if Library:IsMouseOverFrame(Items["OptionHolder"]) then
-                            return
-                        end
-
+                    if Dropdown.IsOpen and not HoverPopup and not HoverButton then
                         Dropdown:SetOpen(false)
                     end
                 end
@@ -3618,16 +4070,20 @@ local Library do
 
             Items["RealDropdown"]:Connect("Changed", function(Property)
                 if Property == "AbsolutePosition" and Dropdown.IsOpen then
-                    Dropdown.IsOpen = not Library:IsClipped(Items["OptionHolder"].Instance, Dropdown.Section.Items["Section"].Instance.Parent)
-                    Items["OptionHolder"].Instance.Visible = Dropdown.IsOpen
+                    if Library:IsClipped(Items["RealDropdown"].Instance, Dropdown.Section.Items["Section"].Instance.Parent) then
+                        Dropdown:SetOpen(false)
+                    end
                 end
             end)
 
-            for Index, Value in Dropdown.Items do 
+            for _, Value in Dropdown.Items do
                 Dropdown:Add(Value)
             end
 
-            if Dropdown.Default then 
+            Dropdown:UpdateWidth()
+            Sync(true)
+
+            if Dropdown.Default ~= nil and Dropdown.Default ~= "" then
                 Dropdown:Set(Dropdown.Default)
             end
 
