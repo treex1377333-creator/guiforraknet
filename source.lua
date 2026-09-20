@@ -1,8 +1,9 @@
 -- made by paladin (vcred64 on discord)
 -- fork by klarkk ( t.me/goveci )
 -- ===========================================
---  UPD 5 : Dropdown good💋
+--  UPD 5  : Dropdown good💋
 --  Added search to dropdown
+--  UPD 5.1 : hotfix
 -- ============================================
 
 if getgenv().Library then
@@ -4376,47 +4377,52 @@ local Library do
                 ConfigsSection:Button({
                     Name = "Create",
                     Callback = function()
-                    if ConfigName and ConfigName ~= "" then
-                        if not isfile(Library.Folders.Configs .. "/" .. ConfigName .. ".json") then
-                            writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
-                            Library:RefreshConfigsList(ConfigsList)
-                        else
-                            return
+                        if ConfigName and ConfigName ~= "" then
+                            if not isfile(Library.Folders.Configs .. "/" .. ConfigName .. ".json") then
+                                writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
+                                Library:RefreshConfigsList(ConfigsList)
+                            else
+                                return
+                            end
                         end
                     end
-                end})
+                })
 
                 ConfigsSection:Button({
                     Name = "Delete", 
                     Callback = function()
-                    if ConfigSelected then
-                        Library:DeleteConfig(ConfigSelected)
-                        Library:RefreshConfigsList(ConfigsList)
+                        if ConfigSelected then
+                            Library:DeleteConfig(ConfigSelected)
+                            Library:RefreshConfigsList(ConfigsList)
+                        end
                     end
-                end})
+                })
 
                 ConfigsSection:Button({
                     Name = "Load", 
                     Callback = function()
-                    if ConfigSelected then
-                        Library:LoadConfig(readfile(Library.Folders.Configs .. "/" .. ConfigSelected))
+                        if ConfigSelected then
+                            Library:LoadConfig(readfile(Library.Folders.Configs .. "/" .. ConfigSelected))
+                        end
                     end
-                end})
+                })
 
                 ConfigsSection:Button({
                     Name = "Save", 
                     Callback = function()
-                    if ConfigName and ConfigName ~= "" then
-                        writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
-                        Library:RefreshConfigsList(ConfigsList)
+                        if ConfigName and ConfigName ~= "" then
+                            writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
+                            Library:RefreshConfigsList(ConfigsList)
+                        end
                     end
-                end})
+                })
 
                 ConfigsSection:Button({
                     Name = "Refresh", 
                     Callback = function()
-                    Library:RefreshConfigsList(ConfigsList)
-                end})
+                        Library:RefreshConfigsList(ConfigsList)
+                    end
+                })
 
                 Library:RefreshConfigsList(ConfigsList)               
             end
@@ -4494,8 +4500,6 @@ local Library do
         end
     end
 end
-
-
 
 getgenv().Library = Library
 return Library
